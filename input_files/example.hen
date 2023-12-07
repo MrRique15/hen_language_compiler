@@ -1,0 +1,20 @@
+// main function
+// declarations
+int i;
+dbl val = 2.5, res[10];
+// statements
+for(i = 0; i < 10; i++){
+    res[i] = opr(val, i);
+    val = res[i]; 
+    prnt(res[i]);
+    prnt('\n');
+}
+rtn;
+// functions
+dbl opr (dbl val, int i){    /* function declaration */
+    // declarations
+    dbl res;
+    // statements
+    res = val*i + i;
+    rtn res;
+}

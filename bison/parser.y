@@ -8,7 +8,7 @@
 	extern FILE *yyout;
 	extern int line_number;
 	extern int yylex();
-    extern void import_class(char *path_name);
+    extern void import_class(char *class_name, char *path_name);
 
 	void yyerror();
 %}
@@ -25,11 +25,32 @@
  
 %%
 
-program: main_function ;
+program: general_imports statement main_function ;
+
+general_imports: 
+    general_import 
+    {
+        printf("general imports\n");
+    }
+    | general_import general_imports
+    {
+        printf("general imports\n");
+    }
+    | /* empty */
+    {
+        printf("no general imports\n");
+    }
+    ;
 
 main_function: type KW_MAIN OPEN_PAREN params CLOSE_PAREN OPEN_BRACE function_body CLOSE_BRACE
     {
         printf("main function\n");
+    }
+    ;
+
+general_import: KW_IMPORT CLASS_IMPORTED FINISH_LINECODE
+    {
+        printf("general import\n");
     }
     ;
 
@@ -77,25 +98,76 @@ function_body: statement
     {
         printf("function body\n");
     }
-    ;
+    | /* empty */
+    {
+        printf("no function body\n");
+    };
 
-statement: assignment_statement
+statement:
+	if_statement | for_statement | while_statement | assignment_statement | return_statement |
+	KW_CONTINUE FINISH_LINECODE | KW_BREAK FINISH_LINECODE | /* empty */ ;
+;
+ 
+if_statement: KW_IF OPEN_PAREN expression CLOSE_PAREN OPEN_BRACE function_body CLOSE_BRACE else_part
     {
-        printf("assignment statement found\n");
+        printf("if statement\n");
+    };
+
+else_part: KW_ELSE OPEN_BRACE function_body CLOSE_BRACE
+    {
+        printf("else part\n");
     }
-    | return_statement
+    | KW_ELSE if_statement
     {
-        printf("return statement\n");
+        printf("else part\n");
     }
     | /* empty */
     {
-        printf("no statement\n");
+        printf("no else part\n");
+    }
+    ;
+
+while_statement: KW_WHILE OPEN_PAREN expression CLOSE_PAREN OPEN_BRACE function_body CLOSE_BRACE
+    {
+        printf("while statement\n");
+    }
+    ;
+
+for_statement: KW_FOR OPEN_PAREN assignment_statement expression FINISH_LINECODE expression CLOSE_PAREN OPEN_BRACE function_body CLOSE_BRACE
+    {
+        printf("for statement\n");
     }
     ;
 
 assignment_statement: type IDENTIFIER ASSIGN_VALUE expression FINISH_LINECODE 
     {
         printf("assignment statement\n");
+    }
+    | type IDENTIFIER ASSIGN_VALUE expression SINGLE_COMMA assignment_statement
+    {
+        printf("assignment statement\n");
+    }
+    | IDENTIFIER ASSIGN_VALUE expression FINISH_LINECODE
+    {
+        printf("assignment statement\n");
+    }
+    | IDENTIFIER ASSIGN_VALUE expression SINGLE_COMMA assignment_statement
+    {
+        printf("assignment statement\n");
+    }
+    | type IDENTIFIER FINISH_LINECODE
+    {
+        printf("assignment statement\n");
+    }
+    | type IDENTIFIER SINGLE_COMMA assignment_statement
+    {
+        printf("assignment statement\n");
+    }
+    ;
+
+return_statement: KW_RETURN OPEN_PAREN expression CLOSE_PAREN FINISH_LINECODE
+    {
+        printf("return statement\n");
     }
     ;
 
@@ -137,33 +209,27 @@ expression: expression OP_ADD expression
     }
     | INT_CONST
     {
-        printf("expression\n");
+        printf("expression int\n");
     }
     | FLT_CONST
     {
-        printf("expression\n");
+        printf("expression float\n");
     }
     | CHR_CONST
     {
-        printf("expression\n");
+        printf("expression char\n");
     }
     | STR_L
     {
-        printf("expression\n");
+        printf("expression string\n");
     }
     | IDENTIFIER
     {
-        printf("expression\n");
+        printf("expression identifier\n");
     }
     | /* empty */
     {
         printf("no expression\n");
-    }
-    ;
-
-return_statement: KW_RETURN expression FINISH_LINECODE
-    {
-        printf("return statement\n");
     }
     ;
 
@@ -175,17 +241,18 @@ void yyerror (char *message)
     // exit(1);
 }
 
-void import_class(char *path_name){
-    FILE *input_file = fopen(path_name, "r");
+void import_class(char *class_name, char *path_name){
+    char *path = "input_files/";
+    char *complete_path = malloc(strlen(path) + strlen(class_name) + strlen(path_name) + 1);
 
-    if (!input_file) {
-        fprintf(stderr, "Error while trying to open file %s to compile\n", path_name);
-        exit(1);
-    }
+    strcpy(complete_path, path);
+    strcat(complete_path, class_name);
+    strcat(complete_path, "/");
+    strcat(complete_path, path_name);
 
-    yyin = input_file;
-    yyparse();
-    fclose(yyin);
+    printf("complete path: %s\n", complete_path);
+
+    // add here the functions to import the class and start its parsing
 }
 
 int main (int argc, char *argv[]){

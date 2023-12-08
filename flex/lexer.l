@@ -10,6 +10,7 @@
     void log_token(char *token_type);
     void log_comment(char *message, int break_line);
     void yyerror();
+    void import_class(char *class_name, char *class_path);
 
     FILE *output_file;
 
@@ -25,10 +26,11 @@ upper       [A-Z]
 digit       [0-9]
 alnum       {alpha}|{digit}|"_"
 print       [ -~]
+file_exten  .hen
 
 IDENTIFIER     {lower}({alnum})* 
 CLASS_NAME     {upper}({alnum})*
-CLASS_IMPORTED {CLASS_NAME}"/"{CLASS_NAME}".hen"
+CLASS_IMPORTED \"{CLASS_NAME}\/{CLASS_NAME}{file_exten}\"
 INT_CONST      "0"|[0-9]{digit}*
 FLT_CONST      "0"|{digit}*"."{digit}+
 CHR_CONST      (\'{print}\')|(\'\\[nftrbv]\')
@@ -97,7 +99,16 @@ STR_L          \"{print}*\"
     return IDENTIFIER;
 }
 {CLASS_NAME}     { return CLASS_NAME; }
-{CLASS_IMPORTED} { return CLASS_IMPORTED; }
+{CLASS_IMPORTED} {
+    yytext[strlen(yytext) - 1] = '\0';
+    yytext += 1;
+
+    char *class_name = strtok(yytext, "/");
+    char *class_path = strtok(NULL, "/");
+    
+    import_class(class_name, class_path);
+    return CLASS_IMPORTED;
+}
 {INT_CONST}      { return INT_CONST; }
 {FLT_CONST}      { return FLT_CONST; }
 {CHR_CONST}      { return CHR_CONST; }

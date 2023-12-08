@@ -78,7 +78,7 @@
 	extern FILE *yyout;
 	extern int line_number;
 	extern int yylex();
-    extern void import_class(char *path_name);
+    extern void import_class(char *class_name, char *path_name);
 
 	void yyerror();
 
@@ -161,14 +161,20 @@ enum yysymbol_kind_t
   YYSYMBOL_CLASS_IMPORTED = 48,            /* CLASS_IMPORTED  */
   YYSYMBOL_YYACCEPT = 49,                  /* $accept  */
   YYSYMBOL_program = 50,                   /* program  */
-  YYSYMBOL_main_function = 51,             /* main_function  */
-  YYSYMBOL_type = 52,                      /* type  */
-  YYSYMBOL_params = 53,                    /* params  */
-  YYSYMBOL_function_body = 54,             /* function_body  */
-  YYSYMBOL_statement = 55,                 /* statement  */
-  YYSYMBOL_assignment_statement = 56,      /* assignment_statement  */
-  YYSYMBOL_expression = 57,                /* expression  */
-  YYSYMBOL_return_statement = 58           /* return_statement  */
+  YYSYMBOL_general_imports = 51,           /* general_imports  */
+  YYSYMBOL_main_function = 52,             /* main_function  */
+  YYSYMBOL_general_import = 53,            /* general_import  */
+  YYSYMBOL_type = 54,                      /* type  */
+  YYSYMBOL_params = 55,                    /* params  */
+  YYSYMBOL_function_body = 56,             /* function_body  */
+  YYSYMBOL_statement = 57,                 /* statement  */
+  YYSYMBOL_if_statement = 58,              /* if_statement  */
+  YYSYMBOL_else_part = 59,                 /* else_part  */
+  YYSYMBOL_while_statement = 60,           /* while_statement  */
+  YYSYMBOL_for_statement = 61,             /* for_statement  */
+  YYSYMBOL_assignment_statement = 62,      /* assignment_statement  */
+  YYSYMBOL_return_statement = 63,          /* return_statement  */
+  YYSYMBOL_expression = 64                 /* expression  */
 };
 typedef enum yysymbol_kind_t yysymbol_kind_t;
 
@@ -494,18 +500,18 @@ union yyalloc
 #endif /* !YYCOPY_NEEDED */
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  9
+#define YYFINAL  6
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   68
+#define YYLAST   172
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  49
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  10
+#define YYNNTS  16
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  33
+#define YYNRULES  54
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  55
+#define YYNSTATES  112
 
 /* YYMAXUTOK -- Last valid token kind.  */
 #define YYMAXUTOK   303
@@ -559,10 +565,12 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    28,    28,    30,    36,    40,    44,    48,    52,    58,
-      62,    67,    72,    76,    82,    86,    91,    96,   102,   106,
-     110,   114,   118,   122,   126,   130,   134,   138,   142,   146,
-     150,   154,   159,   164
+       0,    28,    28,    31,    35,    40,    45,    51,    57,    61,
+      65,    69,    73,    79,    83,    88,    93,    97,   102,   107,
+     107,   107,   107,   107,   108,   108,   108,   111,   116,   120,
+     125,   130,   136,   142,   146,   150,   154,   158,   162,   168,
+     174,   178,   182,   186,   190,   194,   198,   202,   206,   210,
+     214,   218,   222,   226,   231
 };
 #endif
 
@@ -587,9 +595,11 @@ static const char *const yytname[] =
   "CLOSE_BRACK", "OPEN_BRACE", "CLOSE_BRACE", "FINISH_LINECODE",
   "SINGLE_DOT", "SINGLE_COMMA", "ASSIGN_VALUE", "REFER_VALUE",
   "IDENTIFIER", "INT_CONST", "FLT_CONST", "CHR_CONST", "STR_L",
-  "CLASS_NAME", "CLASS_IMPORTED", "$accept", "program", "main_function",
-  "type", "params", "function_body", "statement", "assignment_statement",
-  "expression", "return_statement", YY_NULLPTR
+  "CLASS_NAME", "CLASS_IMPORTED", "$accept", "program", "general_imports",
+  "main_function", "general_import", "type", "params", "function_body",
+  "statement", "if_statement", "else_part", "while_statement",
+  "for_statement", "assignment_statement", "return_statement",
+  "expression", YY_NULLPTR
 };
 
 static const char *
@@ -599,7 +609,7 @@ yysymbol_name (yysymbol_kind_t yysymbol)
 }
 #endif
 
-#define YYPACT_NINF (-24)
+#define YYPACT_NINF (-65)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
@@ -611,14 +621,20 @@ yysymbol_name (yysymbol_kind_t yysymbol)
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
-static const yytype_int8 yypact[] =
+static const yytype_int16 yypact[] =
 {
-      29,   -24,   -24,   -24,   -24,   -24,    14,   -24,    -3,   -24,
-     -13,    29,   -23,     4,    -2,    13,    29,     7,   -24,    17,
-      22,    30,     7,   -24,   -24,   -24,   -24,   -24,   -24,   -24,
-     -21,    25,   -24,   -24,    17,    17,    17,   -24,    17,    17,
-      17,    17,    17,   -24,    17,    28,    28,    28,    28,    28,
-      28,    28,    28,     1,   -24
+     -18,   -44,     5,    53,   -18,   -24,   -65,   -65,   -65,   -65,
+     -65,   -10,    -9,    -3,     2,     3,   -65,    15,    -6,     8,
+      39,   -65,   -65,   -65,   -65,   -65,   -65,   -65,    54,    54,
+       6,   -65,   -65,    54,    54,   -23,   -65,    29,   -65,   -65,
+     -65,   -65,   -65,    98,   109,    54,   120,    46,   -65,     6,
+      54,    20,    54,    54,    54,   -65,    54,    54,    54,    54,
+      54,    19,    26,    82,    40,   -65,     6,   -65,    64,    39,
+     142,   142,   142,   142,   142,   142,   142,   142,    53,    53,
+      54,   -65,   -65,   -65,     6,    37,    48,    45,    53,    66,
+     131,   -65,    43,    49,   105,   -65,   -65,    79,    39,    53,
+       1,   -65,    53,   -65,    80,    53,   -65,    81,   -65,    93,
+     -65,   -65
 };
 
 /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -626,24 +642,32 @@ static const yytype_int8 yypact[] =
    means the default is an error.  */
 static const yytype_int8 yydefact[] =
 {
-       0,     7,     4,     5,     6,     8,     0,     2,     0,     1,
-       0,    11,     0,     0,     9,     0,    11,    16,    10,    32,
-       0,     0,    12,    14,    15,    31,    27,    28,    29,    30,
-       0,     0,     3,    13,    32,    32,    32,    21,    32,    32,
-      32,    32,    32,    33,    32,    18,    19,    20,    22,    23,
-      24,    25,    26,     0,    17
+       5,     0,     0,     0,     3,     0,     1,    11,     8,     9,
+      10,     0,     0,     0,     0,     0,    12,     0,     0,     0,
+       0,    19,    21,    20,    22,    23,     4,     7,    54,    54,
+       0,    24,    25,    54,    54,     0,     2,     0,    53,    49,
+      50,    51,    52,     0,     0,    54,     0,     0,    37,     0,
+      54,     0,    54,    54,    54,    43,    54,    54,    54,    54,
+      54,     0,     0,     0,     0,    35,     0,    38,     0,    15,
+      40,    41,    42,    44,    45,    46,    47,    48,    18,    18,
+      54,    39,    36,    33,     0,     0,     0,     0,    16,     0,
+       0,    34,    13,     0,    30,    17,    31,     0,    15,    18,
+       0,    27,    18,    14,     0,    18,    29,     0,     6,     0,
+      32,    28
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -24,   -24,   -24,     0,    51,    46,   -24,   -24,     5,   -24
+     -65,   -65,   111,   -65,   -65,   -20,    42,   -64,   115,    51,
+     -65,   -65,   -65,   -29,   -65,   -27
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-       0,     6,     7,    12,    13,    21,    22,    23,    30,    24
+       0,     2,     3,    36,     4,    19,    86,    87,    88,    21,
+     101,    22,    23,    24,    25,    43
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -651,54 +675,86 @@ static const yytype_int8 yydefgoto[] =
    number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int8 yytable[] =
 {
-       8,    34,    35,    36,    37,    38,    39,    40,    41,    42,
-       1,     2,     3,     4,     9,    10,    43,    20,    11,    14,
-       5,    19,    20,    34,    35,    36,    37,    38,    39,    40,
-      41,    42,     1,     2,     3,     4,    15,    16,    54,    45,
-      46,    47,     5,    48,    49,    50,    51,    52,    17,    53,
-      34,    35,    36,    37,    38,    39,    40,    41,    42,    25,
-      26,    27,    28,    29,    31,    44,    32,    18,    33
+      37,    45,    44,     1,     5,     6,    46,    47,    11,     7,
+       8,     9,    10,    27,    48,    89,    49,    50,    63,    16,
+      67,    28,    29,    68,    95,    70,    71,    72,    30,    73,
+      74,    75,    76,    77,    34,   104,   105,    82,   107,    31,
+      32,   109,     7,     8,     9,    10,    33,    51,    18,    85,
+      35,    69,    16,    90,    78,    91,     7,     8,     9,    10,
+      11,    79,    12,    13,    14,    15,    16,    17,    52,    53,
+      54,    55,    56,    57,    58,    59,    60,    81,    85,    92,
+      93,    94,    98,    65,    99,    66,    52,    53,    54,    55,
+      56,    57,    58,    59,    60,    18,    38,    39,    40,    41,
+      42,    83,    96,    84,    52,    53,    54,    55,    56,    57,
+      58,    59,    60,   100,   102,    26,   108,   110,    20,    80,
+      52,    53,    54,    55,    56,    57,    58,    59,    60,   111,
+      61,    52,    53,    54,    55,    56,    57,    58,    59,    60,
+     103,    62,    52,    53,    54,    55,    56,    57,    58,    59,
+      60,   106,    64,    52,    53,    54,    55,    56,    57,    58,
+      59,    60,     0,    97,    52,    53,    54,    55,    56,    57,
+      58,    59,    60
 };
 
 static const yytype_int8 yycheck[] =
 {
-       0,    22,    23,    24,    25,    26,    27,    28,    29,    30,
-       3,     4,     5,     6,     0,    18,    37,    17,    31,    42,
-      13,    14,    22,    22,    23,    24,    25,    26,    27,    28,
-      29,    30,     3,     4,     5,     6,    32,    39,    37,    34,
-      35,    36,    13,    38,    39,    40,    41,    42,    35,    44,
-      22,    23,    24,    25,    26,    27,    28,    29,    30,    42,
-      43,    44,    45,    46,    42,    40,    36,    16,    22
+      20,    30,    29,    21,    48,     0,    33,    34,     7,     3,
+       4,     5,     6,    37,    37,    79,    39,    40,    45,    13,
+      49,    31,    31,    50,    88,    52,    53,    54,    31,    56,
+      57,    58,    59,    60,    40,    99,    35,    66,   102,    37,
+      37,   105,     3,     4,     5,     6,    31,    18,    42,    69,
+      42,    31,    13,    80,    35,    84,     3,     4,     5,     6,
+       7,    35,     9,    10,    11,    12,    13,    14,    22,    23,
+      24,    25,    26,    27,    28,    29,    30,    37,    98,    42,
+      32,    36,    39,    37,    35,    39,    22,    23,    24,    25,
+      26,    27,    28,    29,    30,    42,    42,    43,    44,    45,
+      46,    37,    36,    39,    22,    23,    24,    25,    26,    27,
+      28,    29,    30,     8,    35,     4,    36,    36,     3,    37,
+      22,    23,    24,    25,    26,    27,    28,    29,    30,    36,
+      32,    22,    23,    24,    25,    26,    27,    28,    29,    30,
+      98,    32,    22,    23,    24,    25,    26,    27,    28,    29,
+      30,   100,    32,    22,    23,    24,    25,    26,    27,    28,
+      29,    30,    -1,    32,    22,    23,    24,    25,    26,    27,
+      28,    29,    30
 };
 
 /* YYSTOS[STATE-NUM] -- The symbol kind of the accessing symbol of
    state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
-       0,     3,     4,     5,     6,    13,    50,    51,    52,     0,
-      18,    31,    52,    53,    42,    32,    39,    35,    53,    14,
-      52,    54,    55,    56,    58,    42,    43,    44,    45,    46,
-      57,    42,    36,    54,    22,    23,    24,    25,    26,    27,
-      28,    29,    30,    37,    40,    57,    57,    57,    57,    57,
-      57,    57,    57,    57,    37
+       0,    21,    50,    51,    53,    48,     0,     3,     4,     5,
+       6,     7,     9,    10,    11,    12,    13,    14,    42,    54,
+      57,    58,    60,    61,    62,    63,    51,    37,    31,    31,
+      31,    37,    37,    31,    40,    42,    52,    54,    42,    43,
+      44,    45,    46,    64,    64,    62,    64,    64,    37,    39,
+      40,    18,    22,    23,    24,    25,    26,    27,    28,    29,
+      30,    32,    32,    64,    32,    37,    39,    62,    64,    31,
+      64,    64,    64,    64,    64,    64,    64,    64,    35,    35,
+      37,    37,    62,    37,    39,    54,    55,    56,    57,    56,
+      64,    62,    42,    32,    36,    56,    36,    32,    39,    35,
+       8,    59,    35,    55,    56,    35,    58,    56,    36,    56,
+      36,    36
 };
 
 /* YYR1[RULE-NUM] -- Symbol kind of the left-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr1[] =
 {
-       0,    49,    50,    51,    52,    52,    52,    52,    52,    53,
-      53,    53,    54,    54,    55,    55,    55,    56,    57,    57,
-      57,    57,    57,    57,    57,    57,    57,    57,    57,    57,
-      57,    57,    57,    58
+       0,    49,    50,    51,    51,    51,    52,    53,    54,    54,
+      54,    54,    54,    55,    55,    55,    56,    56,    56,    57,
+      57,    57,    57,    57,    57,    57,    57,    58,    59,    59,
+      59,    60,    61,    62,    62,    62,    62,    62,    62,    63,
+      64,    64,    64,    64,    64,    64,    64,    64,    64,    64,
+      64,    64,    64,    64,    64
 };
 
 /* YYR2[RULE-NUM] -- Number of symbols on the right-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr2[] =
 {
-       0,     2,     1,     8,     1,     1,     1,     1,     1,     2,
-       4,     0,     1,     2,     1,     1,     0,     5,     3,     3,
-       3,     2,     3,     3,     3,     3,     3,     1,     1,     1,
-       1,     1,     0,     3
+       0,     2,     3,     1,     2,     0,     8,     3,     1,     1,
+       1,     1,     1,     2,     4,     0,     1,     2,     0,     1,
+       1,     1,     1,     1,     2,     2,     0,     8,     4,     2,
+       0,     7,    10,     5,     6,     4,     5,     3,     4,     5,
+       3,     3,     3,     2,     3,     3,     3,     3,     3,     1,
+       1,     1,     1,     1,     0
 };
 
 
@@ -1161,256 +1217,360 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-  case 3: /* main_function: type KW_MAIN OPEN_PAREN params CLOSE_PAREN OPEN_BRACE function_body CLOSE_BRACE  */
-#line 31 "bison/parser.y"
+  case 3: /* general_imports: general_import  */
+#line 32 "bison/parser.y"
     {
-        printf("main function\n");
-    }
-#line 1170 "parser.tab.c"
-    break;
-
-  case 4: /* type: KW_INT  */
-#line 37 "bison/parser.y"
-    {
-        printf("int\n");
-    }
-#line 1178 "parser.tab.c"
-    break;
-
-  case 5: /* type: KW_FLOAT  */
-#line 41 "bison/parser.y"
-    {
-        printf("float\n");
-    }
-#line 1186 "parser.tab.c"
-    break;
-
-  case 6: /* type: KW_DOUBLE  */
-#line 45 "bison/parser.y"
-    {
-        printf("double\n");
-    }
-#line 1194 "parser.tab.c"
-    break;
-
-  case 7: /* type: KW_CHAR  */
-#line 49 "bison/parser.y"
-    {
-        printf("char\n");
-    }
-#line 1202 "parser.tab.c"
-    break;
-
-  case 8: /* type: KW_FUNCTION  */
-#line 53 "bison/parser.y"
-    {
-        printf("void\n");
-    }
-#line 1210 "parser.tab.c"
-    break;
-
-  case 9: /* params: type IDENTIFIER  */
-#line 59 "bison/parser.y"
-    {
-        printf("param\n");
-    }
-#line 1218 "parser.tab.c"
-    break;
-
-  case 10: /* params: type IDENTIFIER SINGLE_COMMA params  */
-#line 63 "bison/parser.y"
-    {
-        printf("param\n");
+        printf("general imports\n");
     }
 #line 1226 "parser.tab.c"
     break;
 
-  case 11: /* params: %empty  */
-#line 67 "bison/parser.y"
+  case 4: /* general_imports: general_import general_imports  */
+#line 36 "bison/parser.y"
     {
-        printf("no params\n");
+        printf("general imports\n");
     }
 #line 1234 "parser.tab.c"
     break;
 
-  case 12: /* function_body: statement  */
-#line 73 "bison/parser.y"
+  case 5: /* general_imports: %empty  */
+#line 40 "bison/parser.y"
     {
-        printf("function body\n");
+        printf("no general imports\n");
     }
 #line 1242 "parser.tab.c"
     break;
 
-  case 13: /* function_body: statement function_body  */
-#line 77 "bison/parser.y"
+  case 6: /* main_function: type KW_MAIN OPEN_PAREN params CLOSE_PAREN OPEN_BRACE function_body CLOSE_BRACE  */
+#line 46 "bison/parser.y"
     {
-        printf("function body\n");
+        printf("main function\n");
     }
 #line 1250 "parser.tab.c"
     break;
 
-  case 14: /* statement: assignment_statement  */
-#line 83 "bison/parser.y"
+  case 7: /* general_import: KW_IMPORT CLASS_IMPORTED FINISH_LINECODE  */
+#line 52 "bison/parser.y"
     {
-        printf("assignment statement found\n");
+        printf("general import\n");
     }
 #line 1258 "parser.tab.c"
     break;
 
-  case 15: /* statement: return_statement  */
-#line 87 "bison/parser.y"
+  case 8: /* type: KW_INT  */
+#line 58 "bison/parser.y"
     {
-        printf("return statement\n");
+        printf("int\n");
     }
 #line 1266 "parser.tab.c"
     break;
 
-  case 16: /* statement: %empty  */
-#line 91 "bison/parser.y"
+  case 9: /* type: KW_FLOAT  */
+#line 62 "bison/parser.y"
     {
-        printf("no statement\n");
+        printf("float\n");
     }
 #line 1274 "parser.tab.c"
     break;
 
-  case 17: /* assignment_statement: type IDENTIFIER ASSIGN_VALUE expression FINISH_LINECODE  */
-#line 97 "bison/parser.y"
+  case 10: /* type: KW_DOUBLE  */
+#line 66 "bison/parser.y"
     {
-        printf("assignment statement\n");
+        printf("double\n");
     }
 #line 1282 "parser.tab.c"
     break;
 
-  case 18: /* expression: expression OP_ADD expression  */
-#line 103 "bison/parser.y"
+  case 11: /* type: KW_CHAR  */
+#line 70 "bison/parser.y"
     {
-        printf("expression\n");
+        printf("char\n");
     }
 #line 1290 "parser.tab.c"
     break;
 
-  case 19: /* expression: expression OP_MUL expression  */
-#line 107 "bison/parser.y"
+  case 12: /* type: KW_FUNCTION  */
+#line 74 "bison/parser.y"
     {
-        printf("expression\n");
+        printf("void\n");
     }
 #line 1298 "parser.tab.c"
     break;
 
-  case 20: /* expression: expression OP_DIV expression  */
-#line 111 "bison/parser.y"
+  case 13: /* params: type IDENTIFIER  */
+#line 80 "bison/parser.y"
     {
-        printf("expression\n");
+        printf("param\n");
     }
 #line 1306 "parser.tab.c"
     break;
 
-  case 21: /* expression: expression OP_INCR  */
-#line 115 "bison/parser.y"
+  case 14: /* params: type IDENTIFIER SINGLE_COMMA params  */
+#line 84 "bison/parser.y"
     {
-        printf("expression\n");
+        printf("param\n");
     }
 #line 1314 "parser.tab.c"
     break;
 
-  case 22: /* expression: expression OP_OR expression  */
-#line 119 "bison/parser.y"
+  case 15: /* params: %empty  */
+#line 88 "bison/parser.y"
     {
-        printf("expression\n");
+        printf("no params\n");
     }
 #line 1322 "parser.tab.c"
     break;
 
-  case 23: /* expression: expression OP_AND expression  */
-#line 123 "bison/parser.y"
+  case 16: /* function_body: statement  */
+#line 94 "bison/parser.y"
     {
-        printf("expression\n");
+        printf("function body\n");
     }
 #line 1330 "parser.tab.c"
     break;
 
-  case 24: /* expression: expression OP_NOT expression  */
-#line 127 "bison/parser.y"
+  case 17: /* function_body: statement function_body  */
+#line 98 "bison/parser.y"
     {
-        printf("expression\n");
+        printf("function body\n");
     }
 #line 1338 "parser.tab.c"
     break;
 
-  case 25: /* expression: expression OP_EQUAL expression  */
-#line 131 "bison/parser.y"
+  case 18: /* function_body: %empty  */
+#line 102 "bison/parser.y"
     {
-        printf("expression\n");
+        printf("no function body\n");
     }
 #line 1346 "parser.tab.c"
     break;
 
-  case 26: /* expression: expression OP_RELATIVE expression  */
-#line 135 "bison/parser.y"
+  case 27: /* if_statement: KW_IF OPEN_PAREN expression CLOSE_PAREN OPEN_BRACE function_body CLOSE_BRACE else_part  */
+#line 112 "bison/parser.y"
     {
-        printf("expression\n");
+        printf("if statement\n");
     }
 #line 1354 "parser.tab.c"
     break;
 
-  case 27: /* expression: INT_CONST  */
-#line 139 "bison/parser.y"
+  case 28: /* else_part: KW_ELSE OPEN_BRACE function_body CLOSE_BRACE  */
+#line 117 "bison/parser.y"
     {
-        printf("expression\n");
+        printf("else part\n");
     }
 #line 1362 "parser.tab.c"
     break;
 
-  case 28: /* expression: FLT_CONST  */
-#line 143 "bison/parser.y"
+  case 29: /* else_part: KW_ELSE if_statement  */
+#line 121 "bison/parser.y"
     {
-        printf("expression\n");
+        printf("else part\n");
     }
 #line 1370 "parser.tab.c"
     break;
 
-  case 29: /* expression: CHR_CONST  */
-#line 147 "bison/parser.y"
+  case 30: /* else_part: %empty  */
+#line 125 "bison/parser.y"
     {
-        printf("expression\n");
+        printf("no else part\n");
     }
 #line 1378 "parser.tab.c"
     break;
 
-  case 30: /* expression: STR_L  */
-#line 151 "bison/parser.y"
+  case 31: /* while_statement: KW_WHILE OPEN_PAREN expression CLOSE_PAREN OPEN_BRACE function_body CLOSE_BRACE  */
+#line 131 "bison/parser.y"
     {
-        printf("expression\n");
+        printf("while statement\n");
     }
 #line 1386 "parser.tab.c"
     break;
 
-  case 31: /* expression: IDENTIFIER  */
-#line 155 "bison/parser.y"
+  case 32: /* for_statement: KW_FOR OPEN_PAREN assignment_statement expression FINISH_LINECODE expression CLOSE_PAREN OPEN_BRACE function_body CLOSE_BRACE  */
+#line 137 "bison/parser.y"
     {
-        printf("expression\n");
+        printf("for statement\n");
     }
 #line 1394 "parser.tab.c"
     break;
 
-  case 32: /* expression: %empty  */
-#line 159 "bison/parser.y"
+  case 33: /* assignment_statement: type IDENTIFIER ASSIGN_VALUE expression FINISH_LINECODE  */
+#line 143 "bison/parser.y"
     {
-        printf("no expression\n");
+        printf("assignment statement\n");
     }
 #line 1402 "parser.tab.c"
     break;
 
-  case 33: /* return_statement: KW_RETURN expression FINISH_LINECODE  */
-#line 165 "bison/parser.y"
+  case 34: /* assignment_statement: type IDENTIFIER ASSIGN_VALUE expression SINGLE_COMMA assignment_statement  */
+#line 147 "bison/parser.y"
     {
-        printf("return statement\n");
+        printf("assignment statement\n");
     }
 #line 1410 "parser.tab.c"
     break;
 
+  case 35: /* assignment_statement: IDENTIFIER ASSIGN_VALUE expression FINISH_LINECODE  */
+#line 151 "bison/parser.y"
+    {
+        printf("assignment statement\n");
+    }
+#line 1418 "parser.tab.c"
+    break;
 
-#line 1414 "parser.tab.c"
+  case 36: /* assignment_statement: IDENTIFIER ASSIGN_VALUE expression SINGLE_COMMA assignment_statement  */
+#line 155 "bison/parser.y"
+    {
+        printf("assignment statement\n");
+    }
+#line 1426 "parser.tab.c"
+    break;
+
+  case 37: /* assignment_statement: type IDENTIFIER FINISH_LINECODE  */
+#line 159 "bison/parser.y"
+    {
+        printf("assignment statement\n");
+    }
+#line 1434 "parser.tab.c"
+    break;
+
+  case 38: /* assignment_statement: type IDENTIFIER SINGLE_COMMA assignment_statement  */
+#line 163 "bison/parser.y"
+    {
+        printf("assignment statement\n");
+    }
+#line 1442 "parser.tab.c"
+    break;
+
+  case 39: /* return_statement: KW_RETURN OPEN_PAREN expression CLOSE_PAREN FINISH_LINECODE  */
+#line 169 "bison/parser.y"
+    {
+        printf("return statement\n");
+    }
+#line 1450 "parser.tab.c"
+    break;
+
+  case 40: /* expression: expression OP_ADD expression  */
+#line 175 "bison/parser.y"
+    {
+        printf("expression\n");
+    }
+#line 1458 "parser.tab.c"
+    break;
+
+  case 41: /* expression: expression OP_MUL expression  */
+#line 179 "bison/parser.y"
+    {
+        printf("expression\n");
+    }
+#line 1466 "parser.tab.c"
+    break;
+
+  case 42: /* expression: expression OP_DIV expression  */
+#line 183 "bison/parser.y"
+    {
+        printf("expression\n");
+    }
+#line 1474 "parser.tab.c"
+    break;
+
+  case 43: /* expression: expression OP_INCR  */
+#line 187 "bison/parser.y"
+    {
+        printf("expression\n");
+    }
+#line 1482 "parser.tab.c"
+    break;
+
+  case 44: /* expression: expression OP_OR expression  */
+#line 191 "bison/parser.y"
+    {
+        printf("expression\n");
+    }
+#line 1490 "parser.tab.c"
+    break;
+
+  case 45: /* expression: expression OP_AND expression  */
+#line 195 "bison/parser.y"
+    {
+        printf("expression\n");
+    }
+#line 1498 "parser.tab.c"
+    break;
+
+  case 46: /* expression: expression OP_NOT expression  */
+#line 199 "bison/parser.y"
+    {
+        printf("expression\n");
+    }
+#line 1506 "parser.tab.c"
+    break;
+
+  case 47: /* expression: expression OP_EQUAL expression  */
+#line 203 "bison/parser.y"
+    {
+        printf("expression\n");
+    }
+#line 1514 "parser.tab.c"
+    break;
+
+  case 48: /* expression: expression OP_RELATIVE expression  */
+#line 207 "bison/parser.y"
+    {
+        printf("expression\n");
+    }
+#line 1522 "parser.tab.c"
+    break;
+
+  case 49: /* expression: INT_CONST  */
+#line 211 "bison/parser.y"
+    {
+        printf("expression int\n");
+    }
+#line 1530 "parser.tab.c"
+    break;
+
+  case 50: /* expression: FLT_CONST  */
+#line 215 "bison/parser.y"
+    {
+        printf("expression float\n");
+    }
+#line 1538 "parser.tab.c"
+    break;
+
+  case 51: /* expression: CHR_CONST  */
+#line 219 "bison/parser.y"
+    {
+        printf("expression char\n");
+    }
+#line 1546 "parser.tab.c"
+    break;
+
+  case 52: /* expression: STR_L  */
+#line 223 "bison/parser.y"
+    {
+        printf("expression string\n");
+    }
+#line 1554 "parser.tab.c"
+    break;
+
+  case 53: /* expression: IDENTIFIER  */
+#line 227 "bison/parser.y"
+    {
+        printf("expression identifier\n");
+    }
+#line 1562 "parser.tab.c"
+    break;
+
+  case 54: /* expression: %empty  */
+#line 231 "bison/parser.y"
+    {
+        printf("no expression\n");
+    }
+#line 1570 "parser.tab.c"
+    break;
+
+
+#line 1574 "parser.tab.c"
 
       default: break;
     }
@@ -1603,7 +1763,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 170 "bison/parser.y"
+#line 236 "bison/parser.y"
 
  
 void yyerror (char *message)
@@ -1612,17 +1772,18 @@ void yyerror (char *message)
     // exit(1);
 }
 
-void import_class(char *path_name){
-    FILE *input_file = fopen(path_name, "r");
+void import_class(char *class_name, char *path_name){
+    char *path = "input_files/";
+    char *complete_path = malloc(strlen(path) + strlen(class_name) + strlen(path_name) + 1);
 
-    if (!input_file) {
-        fprintf(stderr, "Error while trying to open file %s to compile\n", path_name);
-        exit(1);
-    }
+    strcpy(complete_path, path);
+    strcat(complete_path, class_name);
+    strcat(complete_path, "/");
+    strcat(complete_path, path_name);
 
-    yyin = input_file;
-    yyparse();
-    fclose(yyin);
+    printf("complete path: %s\n", complete_path);
+
+    // add here the functions to import the class and start its parsing
 }
 
 int main (int argc, char *argv[]){

@@ -1,5 +1,9 @@
 ------------ ------ ------------
 Name         Type   Line Numbers
 ------------ ------ -------------
-a            undef     2 
-b            undef     3 
+globZ        undef     4 
+a            undef     7   11   12   13   14   17 
+b            undef     7   11   12   14   15   17 
+c            undef     8 
+d            undef     9   10   11 
+e            undef     9 

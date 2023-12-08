@@ -1,5 +1,18 @@
+import "Teste/Teste.hen";
+import "Teste2/Teste2.hen";
+
+int globZ;
+
 fnc main(){
-    int a = 1;
-    int b = 2;
+    int a = 1, b = 2;
+    int c = 0;
+    int d, e = 1;
+    d = 4;
+    d = a - b;
+    if(a > b){
+        rtn(a);
+    }els if(a < b){
+        rtn(b);
+    }
     rtn(a+b);
 }

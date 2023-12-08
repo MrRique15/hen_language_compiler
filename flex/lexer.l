@@ -7,10 +7,10 @@
     #include "utilities/symtab.h"
     #include "parser.tab.h"
     int line_number = 1;                              // initialize line counter to 1
-    void log_token(char *token_type);
     void log_comment(char *message, int break_line);
     void yyerror();
     void import_class(char *class_name, char *class_path);
+    void log_token(char *token_name, char *token_value);
 
     FILE *output_file;
 
@@ -47,59 +47,180 @@ STR_L          \"{print}*\"
 <MULTI_COMMENT>"\n"        { line_number += 1; }
 
 
-"chr"           { return KW_CHAR; }
-"int"           { return KW_INT; }
-"flt"           { return KW_FLOAT; }
-"dbl"           { return KW_DOUBLE; }
-"if"            { return KW_IF; }
-"els"           { return KW_ELSE; }
-"whl"           { return KW_WHILE; }
-"for"           { return KW_FOR; }
-"lets_go"       { return KW_CONTINUE;}
-"fnc"           { return KW_FUNCTION; }
-"rtn"           { return KW_RETURN; }
-"brk"           { return KW_BREAK; }
-"clss"          { return KW_CLASS; }
-"new"           { return KW_NEW; }
-"prnt"          { return KW_PRINT; }
-"pvt"           { return KW_PRIVATE; }
-"pub"           { return KW_PUBLIC; }
-"main"          { return KW_MAIN; }
-"import"        { return KW_IMPORT; }
-
-
-"+"|"-"           { return OP_ADD; }
-"*"               { return OP_MUL; }
-"/"               { return OP_DIV; }
-"++"|"--"         { return OP_INCR; }
-"or"              { return OP_OR; }
-"and"             { return OP_AND; }
-"not"             { return OP_NOT; }
-"=="|"!="         { return OP_EQUAL; }
-">"|"<"|">="|"<=" { return OP_RELATIVE; }
-
-
-"("             { return OPEN_PAREN; 
+"chr"           {
+    log_token("KW_CHAR", yytext);
+    return KW_CHAR; 
 }
-")"             { return CLOSE_PAREN; 
+"int"           {
+    log_token("KW_INT", yytext);
+    return KW_INT; 
 }
-"["             { return OPEN_BRACK; }
-"]"             { return CLOSE_BRACK; }
-"{"             { return OPEN_BRACE; }
-"}"             { return CLOSE_BRACE; }
-";"             { return FINISH_LINECODE; }
-"."             { return SINGLE_DOT; }
-","             { return SINGLE_COMMA; }
-"="             { return ASSIGN_VALUE; }
-"&"             { return REFER_VALUE; }
+"flt"           {
+    log_token("KW_FLOAT", yytext);
+    return KW_FLOAT; 
+}
+"dbl"           {
+    log_token("KW_DOUBLE", yytext);
+    return KW_DOUBLE; 
+}
+"if"            {
+    log_token("KW_IF", yytext);
+    return KW_IF; 
+}
+"els"           {
+    log_token("KW_ELSE", yytext);
+    return KW_ELSE; 
+}
+"whl"           {
+    log_token("KW_WHILE", yytext);
+    return KW_WHILE; 
+}
+"for"           {
+    log_token("KW_FOR", yytext);
+    return KW_FOR; 
+}
+"lets_go"       {
+    log_token("KW_CONTINUE", yytext);
+    return KW_CONTINUE;
+}
+"fnc"           {
+    log_token("KW_FUNCTION", yytext);
+    return KW_FUNCTION; 
+}
+"rtn"           {
+    log_token("KW_RETURN", yytext);
+    return KW_RETURN; 
+}
+"brk"           {
+    log_token("KW_BREAK", yytext);
+    return KW_BREAK; 
+}
+"clss"          {
+    log_token("KW_CLASS", yytext);
+    return KW_CLASS; 
+}
+"new"           {
+    log_token("KW_NEW", yytext);
+    return KW_NEW; 
+}
+"prnt"          {
+    log_token("KW_PRINT", yytext);
+    return KW_PRINT; 
+}
+"pvt"           {
+    log_token("KW_PRIVATE", yytext);
+    return KW_PRIVATE; 
+}
+"pub"           {
+    log_token("KW_PUBLIC", yytext);
+    return KW_PUBLIC; 
+}
+"main"          {
+    log_token("KW_MAIN", yytext);
+    return KW_MAIN; 
+}
+"import"        {
+    log_token("KW_IMPORT", yytext);
+    return KW_IMPORT; 
+}
+
+
+"+"|"-"           {
+    log_token("OP_ADD", yytext);
+    return OP_ADD; 
+}
+"*"               {
+    log_token("OP_MUL", yytext);
+    return OP_MUL; 
+}
+"/"               {
+    log_token("OP_DIV", yytext);
+    return OP_DIV; 
+}
+"++"|"--"         {
+    log_token("OP_INCR", yytext);
+    return OP_INCR; 
+}
+"or"              {
+    log_token("OP_OR", yytext);
+    return OP_OR; 
+}
+"and"             {
+    log_token("OP_AND", yytext);
+    return OP_AND; 
+}
+"not"             {
+    log_token("OP_NOT", yytext);
+    return OP_NOT; 
+}
+"=="|"!="         {
+    log_token("OP_EQUAL", yytext);
+    return OP_EQUAL; 
+}
+">"|"<"|">="|"<=" {
+    log_token("OP_RELATIVE", yytext);
+    return OP_RELATIVE; 
+}
+
+
+"("             { 
+    log_token("OPEN_PAREN", yytext);
+    return OPEN_PAREN; 
+}
+")"             { 
+    log_token("CLOSE_PAREN", yytext);
+    return CLOSE_PAREN; 
+}
+"["             { 
+    log_token("OPEN_BRACK", yytext);
+    return OPEN_BRACK; 
+}
+"]"             { 
+    log_token("CLOSE_BRACK", yytext);
+    return CLOSE_BRACK; 
+}
+"{"             { 
+    log_token("OPEN_BRACE", yytext);
+    return OPEN_BRACE; 
+}
+"}"             { 
+    log_token("CLOSE_BRACE", yytext);
+    return CLOSE_BRACE; 
+}
+";"             { 
+    log_token("FINISH_LINECODE", yytext);
+    return FINISH_LINECODE; 
+}
+"."             { 
+    log_token("SINGLE_DOT", yytext);
+    return SINGLE_DOT; 
+}
+","             { 
+    log_token("SINGLE_COMMA", yytext);
+    return SINGLE_COMMA; 
+}
+"="             { 
+    log_token("ASSIGN_VALUE", yytext);
+    return ASSIGN_VALUE; 
+}
+"&"             { 
+    log_token("REFER_VALUE", yytext);
+    return REFER_VALUE; 
+}
 
 
 {IDENTIFIER}     {
+    log_token("IDENTIFIER", yytext);
     insert(yytext, strlen(yytext), UNDEF, line_number);
     return IDENTIFIER;
 }
-{CLASS_NAME}     { return CLASS_NAME; }
+{CLASS_NAME}     { 
+    log_token("CLASS_NAME", yytext);
+    return CLASS_NAME; 
+}
 {CLASS_IMPORTED} {
+    log_token("CLASS_IMPORTED", yytext);
+
     yytext[strlen(yytext) - 1] = '\0';
     yytext += 1;
 
@@ -109,10 +230,22 @@ STR_L          \"{print}*\"
     import_class(class_name, class_path);
     return CLASS_IMPORTED;
 }
-{INT_CONST}      { return INT_CONST; }
-{FLT_CONST}      { return FLT_CONST; }
-{CHR_CONST}      { return CHR_CONST; }
-{STR_L}          { return STR_L; }
+{INT_CONST}      { 
+    log_token("INT_CONST", yytext);
+    return INT_CONST; 
+}
+{FLT_CONST}      { 
+    log_token("FLT_CONST", yytext);
+    return FLT_CONST; 
+}
+{CHR_CONST}      { 
+    log_token("CHR_CONST", yytext);
+    return CHR_CONST; 
+}
+{STR_L}          { 
+    log_token("STR_L", yytext);
+    return STR_L; 
+}
 
  
 "\n"            { line_number += 1; }     /* increment line number, when found line break character */

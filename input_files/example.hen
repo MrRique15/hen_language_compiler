@@ -1,5 +1,4 @@
-import "Teste/Teste.hen";
-import "Teste2/Teste2.hen";
+import "ClasseTeste/ClasseTeste.hen";
 
 int globZ;
 

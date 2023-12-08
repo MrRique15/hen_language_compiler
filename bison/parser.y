@@ -9,6 +9,11 @@
 	extern int line_number;
 	extern int yylex();
     extern void import_class(char *class_name, char *path_name);
+    extern void log_token(char *token_name, char *token_value);
+    extern void log_parser(char *message);
+
+    FILE *output_lexer_log;
+    FILE *output_parser_log;
 
 	void yyerror();
 %}
@@ -30,206 +35,220 @@ program: general_imports statement main_function ;
 general_imports: 
     general_import 
     {
-        printf("general imports\n");
+        log_parser("single general import found");
     }
     | general_import general_imports
     {
-        printf("general imports\n");
+        log_parser("multiple general imports found");
     }
     | /* empty */
     {
-        printf("no general imports\n");
+        log_parser("no general imports left");
     }
     ;
 
 main_function: type KW_MAIN OPEN_PAREN params CLOSE_PAREN OPEN_BRACE function_body CLOSE_BRACE
     {
-        printf("main function\n");
+        log_parser("main function found");
     }
     ;
 
 general_import: KW_IMPORT CLASS_IMPORTED FINISH_LINECODE
     {
-        printf("general import\n");
+        log_parser("general import execution");
     }
     ;
 
 type: KW_INT
     {
-        printf("int\n");
+        log_parser("type int found");
     }
     | KW_FLOAT
     {
-        printf("float\n");
+        log_parser("type float found");
     }
     | KW_DOUBLE
     {
-        printf("double\n");
+        log_parser("type double found");
     }
     | KW_CHAR
     {
-        printf("char\n");
+        log_parser("type char found");
     }
     | KW_FUNCTION
     {
-        printf("void\n");
+        log_parser("type void found");
     } 
     ;
 
 params: type IDENTIFIER
     {
-        printf("param\n");
+        log_parser("single param found");
     }
     | type IDENTIFIER SINGLE_COMMA params
     {
-        printf("param\n");
+        log_parser("multiple params found");
     }
     | /* empty */
     {
-        printf("no params\n");
+        log_parser("no params left");
     }
     ;
 
 function_body: statement
     {
-        printf("function body\n");
+        log_parser("simple function body");
     }
     | statement function_body
     {
-        printf("function body\n");
+        log_parser("complex function body");
     }
     | /* empty */
     {
-        printf("no function body\n");
+        log_parser("no function body");
     };
 
 statement:
 	if_statement | for_statement | while_statement | assignment_statement | return_statement |
-	KW_CONTINUE FINISH_LINECODE | KW_BREAK FINISH_LINECODE | /* empty */ ;
+	KW_CONTINUE FINISH_LINECODE | KW_BREAK FINISH_LINECODE ;
 ;
  
 if_statement: KW_IF OPEN_PAREN expression CLOSE_PAREN OPEN_BRACE function_body CLOSE_BRACE else_part
     {
-        printf("if statement\n");
+        log_parser("if statement found");
     };
 
 else_part: KW_ELSE OPEN_BRACE function_body CLOSE_BRACE
     {
-        printf("else part\n");
+        log_parser("simple else found");
     }
     | KW_ELSE if_statement
     {
-        printf("else part\n");
+        log_parser("compose else found");
     }
     | /* empty */
     {
-        printf("no else part\n");
+        log_parser("no else found");
     }
     ;
 
 while_statement: KW_WHILE OPEN_PAREN expression CLOSE_PAREN OPEN_BRACE function_body CLOSE_BRACE
     {
-        printf("while statement\n");
+        log_parser("while found");
     }
     ;
 
 for_statement: KW_FOR OPEN_PAREN assignment_statement expression FINISH_LINECODE expression CLOSE_PAREN OPEN_BRACE function_body CLOSE_BRACE
     {
-        printf("for statement\n");
+        log_parser("for found");
     }
     ;
 
-assignment_statement: type IDENTIFIER ASSIGN_VALUE expression FINISH_LINECODE 
+assignment_statement: access type IDENTIFIER ASSIGN_VALUE expression FINISH_LINECODE 
     {
-        printf("assignment statement\n");
+        log_parser("simple compose start assignment found");
     }
-    | type IDENTIFIER ASSIGN_VALUE expression SINGLE_COMMA assignment_statement
+    | access type IDENTIFIER ASSIGN_VALUE expression SINGLE_COMMA assignment_statement
     {
-        printf("assignment statement\n");
+        log_parser("multiple compose start assignments found");
     }
     | IDENTIFIER ASSIGN_VALUE expression FINISH_LINECODE
     {
-        printf("assignment statement\n");
+        log_parser("simple compose assignment found");
     }
     | IDENTIFIER ASSIGN_VALUE expression SINGLE_COMMA assignment_statement
     {
-        printf("assignment statement\n");
+        log_parser("multiple compose assignments found");
     }
-    | type IDENTIFIER FINISH_LINECODE
+    | access type IDENTIFIER FINISH_LINECODE
     {
-        printf("assignment statement\n");
+        log_parser("simple start assignment found");
     }
-    | type IDENTIFIER SINGLE_COMMA assignment_statement
+    | access type IDENTIFIER SINGLE_COMMA assignment_statement
     {
-        printf("assignment statement\n");
+        log_parser("multiple start simple assignments found");
+    }
+    ;
+
+access: KW_PRIVATE
+    {
+        log_parser("private definition");
+    }
+    | KW_PUBLIC
+    {
+        log_parser("public definition");
+    }
+    | /* empty */
+    {
+        log_parser("no access specified");
     }
     ;
 
 return_statement: KW_RETURN OPEN_PAREN expression CLOSE_PAREN FINISH_LINECODE
     {
-        printf("return statement\n");
+        log_parser("return statement achieved");
     }
     ;
 
 expression: expression OP_ADD expression
     {
-        printf("expression\n");
+        log_parser("add expression");
     }
     | expression OP_MUL expression
     {
-        printf("expression\n");
+        log_parser("mult expression");
     }
     | expression OP_DIV expression
     {
-        printf("expression\n");
+        log_parser("div expression");
     }
     | expression OP_INCR
     {
-        printf("expression\n");
+        log_parser("increment expression");
     }
     | expression OP_OR expression
     {
-        printf("expression\n");
+        log_parser("or expression");
     }
     | expression OP_AND expression
     {
-        printf("expression\n");
+        log_parser("and expression");
     }
     | expression OP_NOT expression
     {
-        printf("expression\n");
+        log_parser("not expression");
     }
     | expression OP_EQUAL expression
     {
-        printf("expression\n");
+        log_parser("equal expression");
     }
     | expression OP_RELATIVE expression
     {
-        printf("expression\n");
+        log_parser("relative expression");
     }
     | INT_CONST
     {
-        printf("expression int\n");
+        log_parser("int value expression");
     }
     | FLT_CONST
     {
-        printf("expression float\n");
+        log_parser("float value expression");
     }
     | CHR_CONST
     {
-        printf("expression char\n");
+        log_parser("char value expression");
     }
     | STR_L
     {
-        printf("expression string\n");
+        log_parser("string value expression");
     }
     | IDENTIFIER
     {
-        printf("expression identifier\n");
+        log_parser("identifier expression");
     }
     | /* empty */
     {
-        printf("no expression\n");
+        log_parser("no expression left");
     }
     ;
 
@@ -250,9 +269,19 @@ void import_class(char *class_name, char *path_name){
     strcat(complete_path, "/");
     strcat(complete_path, path_name);
 
-    printf("complete path: %s\n", complete_path);
+    printf("----------\nFound a Class into the code given\nNAME: %-10s \tPATH: %s\n----------\n", class_name, complete_path);
 
     // add here the functions to import the class and start its parsing
+
+    return;
+}
+
+void log_token(char *token_name, char *token_value){
+    fprintf(output_lexer_log, "TOKEN: %-15s \tVALUE: %-40s \tLINE: %d\n", token_name, token_value, line_number);
+}
+
+void log_parser(char *message){
+    fprintf(output_parser_log, "MESSAGE: %-50s \tLINE: %d\n", message, line_number);
 }
 
 int main (int argc, char *argv[]){
@@ -269,6 +298,9 @@ int main (int argc, char *argv[]){
         return EXIT_FAILURE;
     }
 
+    output_lexer_log = fopen("output_files/output_lexic_log.out", "w");
+    output_parser_log = fopen("output_files/output_parser_log.out", "w");
+
 	// initialize symbol table
 	init_hash_table();
  
@@ -277,6 +309,9 @@ int main (int argc, char *argv[]){
 	yyin = input_file;
 	flag = yyparse();
 	fclose(yyin);
+    
+    fclose(output_lexer_log);
+    fclose(output_parser_log);
  
 	// symbol table dump
 	yyout = fopen("output_files/symtab_dump.out", "w");

@@ -3,8 +3,18 @@
 #include <string.h>
 #include "symtab.h"
 
+FILE *output_hash_log; // file to log the operations of the hash table
+
 // init current scope
 int cur_scope = 0;
+
+// logs the operations of the hash table
+void log_hash_table_first(char *name, int line_number){
+    fprintf(output_hash_log, "Inserted %-10s for the first time with LINE: %d!\n", name, line_number);
+}
+void log_hash_table_recurrency(char *name, int line_number){
+    fprintf(output_hash_log, "Found %-13s again at LINE %d!\n", name, line_number);
+}
 
 // inits the symbol table with a size of 211 and NULL values
 void init_hash_table(){
@@ -12,7 +22,11 @@ void init_hash_table(){
 
     hash_table = malloc(TABLESIZE * sizeof(list_t*));
 
-    for(i = 0; i < TABLESIZE; i++) hash_table[i] = NULL;
+    for(i = 0; i < TABLESIZE; i++){
+        hash_table[i] = NULL;
+    }
+
+    output_hash_log = fopen("output_files/output_hash_log.out", "w");
 }
 
 // hash function to hash the name of a value
@@ -54,7 +68,7 @@ void insert(char *name, int len, int type, int line_number){
 
         hash_table[hashval] = l; 
 
-        printf("Inserted %s for the first time with linenumber %d!\n", name, line_number); // error checking
+        log_hash_table_first(name, line_number);
     }else{
         // found in table, so just add line number to reference list
         l->scope = cur_scope;
@@ -69,7 +83,7 @@ void insert(char *name, int len, int type, int line_number){
         t->next->line_number = line_number;
         t->next->next = NULL;
 
-        printf("Found %s again at line %d!\n", name, line_number);
+        log_hash_table_recurrency(name, line_number);
     }
 }
  
@@ -110,11 +124,13 @@ void hide_scope(){
 void incr_scope(){
     cur_scope++;
 }
- 
+
 // prints the symbol table
 void symtab_dump(FILE * of){  
     int i;
     
+    fclose(output_hash_log); // close the log file
+
     fprintf(of,"------------ ------ ------------\n");
     fprintf(of,"Name         Type   Line Numbers\n");
     fprintf(of,"------------ ------ -------------\n");

@@ -571,10 +571,10 @@ char *yytext;
     #include "utilities/symtab.h"
     #include "parser.tab.h"
     int line_number = 1;                              // initialize line counter to 1
-    void log_token(char *token_type);
     void log_comment(char *message, int break_line);
     void yyerror();
     void import_class(char *class_name, char *class_path);
+    void log_token(char *token_name, char *token_value);
 
     FILE *output_file;
 
@@ -894,217 +894,338 @@ YY_RULE_SETUP
 case 7:
 YY_RULE_SETUP
 #line 50 "flex/lexer.l"
-{ return KW_CHAR; }
+{
+    log_token("KW_CHAR", yytext);
+    return KW_CHAR; 
+}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 51 "flex/lexer.l"
-{ return KW_INT; }
+#line 54 "flex/lexer.l"
+{
+    log_token("KW_INT", yytext);
+    return KW_INT; 
+}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 52 "flex/lexer.l"
-{ return KW_FLOAT; }
+#line 58 "flex/lexer.l"
+{
+    log_token("KW_FLOAT", yytext);
+    return KW_FLOAT; 
+}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 53 "flex/lexer.l"
-{ return KW_DOUBLE; }
+#line 62 "flex/lexer.l"
+{
+    log_token("KW_DOUBLE", yytext);
+    return KW_DOUBLE; 
+}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 54 "flex/lexer.l"
-{ return KW_IF; }
+#line 66 "flex/lexer.l"
+{
+    log_token("KW_IF", yytext);
+    return KW_IF; 
+}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 55 "flex/lexer.l"
-{ return KW_ELSE; }
+#line 70 "flex/lexer.l"
+{
+    log_token("KW_ELSE", yytext);
+    return KW_ELSE; 
+}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 56 "flex/lexer.l"
-{ return KW_WHILE; }
+#line 74 "flex/lexer.l"
+{
+    log_token("KW_WHILE", yytext);
+    return KW_WHILE; 
+}
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 57 "flex/lexer.l"
-{ return KW_FOR; }
+#line 78 "flex/lexer.l"
+{
+    log_token("KW_FOR", yytext);
+    return KW_FOR; 
+}
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 58 "flex/lexer.l"
-{ return KW_CONTINUE;}
+#line 82 "flex/lexer.l"
+{
+    log_token("KW_CONTINUE", yytext);
+    return KW_CONTINUE;
+}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 59 "flex/lexer.l"
-{ return KW_FUNCTION; }
+#line 86 "flex/lexer.l"
+{
+    log_token("KW_FUNCTION", yytext);
+    return KW_FUNCTION; 
+}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 60 "flex/lexer.l"
-{ return KW_RETURN; }
+#line 90 "flex/lexer.l"
+{
+    log_token("KW_RETURN", yytext);
+    return KW_RETURN; 
+}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 61 "flex/lexer.l"
-{ return KW_BREAK; }
+#line 94 "flex/lexer.l"
+{
+    log_token("KW_BREAK", yytext);
+    return KW_BREAK; 
+}
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 62 "flex/lexer.l"
-{ return KW_CLASS; }
+#line 98 "flex/lexer.l"
+{
+    log_token("KW_CLASS", yytext);
+    return KW_CLASS; 
+}
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 63 "flex/lexer.l"
-{ return KW_NEW; }
+#line 102 "flex/lexer.l"
+{
+    log_token("KW_NEW", yytext);
+    return KW_NEW; 
+}
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 64 "flex/lexer.l"
-{ return KW_PRINT; }
+#line 106 "flex/lexer.l"
+{
+    log_token("KW_PRINT", yytext);
+    return KW_PRINT; 
+}
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 65 "flex/lexer.l"
-{ return KW_PRIVATE; }
+#line 110 "flex/lexer.l"
+{
+    log_token("KW_PRIVATE", yytext);
+    return KW_PRIVATE; 
+}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 66 "flex/lexer.l"
-{ return KW_PUBLIC; }
+#line 114 "flex/lexer.l"
+{
+    log_token("KW_PUBLIC", yytext);
+    return KW_PUBLIC; 
+}
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 67 "flex/lexer.l"
-{ return KW_MAIN; }
+#line 118 "flex/lexer.l"
+{
+    log_token("KW_MAIN", yytext);
+    return KW_MAIN; 
+}
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 68 "flex/lexer.l"
-{ return KW_IMPORT; }
+#line 122 "flex/lexer.l"
+{
+    log_token("KW_IMPORT", yytext);
+    return KW_IMPORT; 
+}
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 71 "flex/lexer.l"
-{ return OP_ADD; }
+#line 128 "flex/lexer.l"
+{
+    log_token("OP_ADD", yytext);
+    return OP_ADD; 
+}
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 72 "flex/lexer.l"
-{ return OP_MUL; }
+#line 132 "flex/lexer.l"
+{
+    log_token("OP_MUL", yytext);
+    return OP_MUL; 
+}
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 73 "flex/lexer.l"
-{ return OP_DIV; }
+#line 136 "flex/lexer.l"
+{
+    log_token("OP_DIV", yytext);
+    return OP_DIV; 
+}
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 74 "flex/lexer.l"
-{ return OP_INCR; }
+#line 140 "flex/lexer.l"
+{
+    log_token("OP_INCR", yytext);
+    return OP_INCR; 
+}
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 75 "flex/lexer.l"
-{ return OP_OR; }
+#line 144 "flex/lexer.l"
+{
+    log_token("OP_OR", yytext);
+    return OP_OR; 
+}
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 76 "flex/lexer.l"
-{ return OP_AND; }
+#line 148 "flex/lexer.l"
+{
+    log_token("OP_AND", yytext);
+    return OP_AND; 
+}
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 77 "flex/lexer.l"
-{ return OP_NOT; }
+#line 152 "flex/lexer.l"
+{
+    log_token("OP_NOT", yytext);
+    return OP_NOT; 
+}
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 78 "flex/lexer.l"
-{ return OP_EQUAL; }
+#line 156 "flex/lexer.l"
+{
+    log_token("OP_EQUAL", yytext);
+    return OP_EQUAL; 
+}
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 79 "flex/lexer.l"
-{ return OP_RELATIVE; }
+#line 160 "flex/lexer.l"
+{
+    log_token("OP_RELATIVE", yytext);
+    return OP_RELATIVE; 
+}
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 82 "flex/lexer.l"
-{ return OPEN_PAREN; 
+#line 166 "flex/lexer.l"
+{ 
+    log_token("OPEN_PAREN", yytext);
+    return OPEN_PAREN; 
 }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 84 "flex/lexer.l"
-{ return CLOSE_PAREN; 
+#line 170 "flex/lexer.l"
+{ 
+    log_token("CLOSE_PAREN", yytext);
+    return CLOSE_PAREN; 
 }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 86 "flex/lexer.l"
-{ return OPEN_BRACK; }
+#line 174 "flex/lexer.l"
+{ 
+    log_token("OPEN_BRACK", yytext);
+    return OPEN_BRACK; 
+}
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 87 "flex/lexer.l"
-{ return CLOSE_BRACK; }
+#line 178 "flex/lexer.l"
+{ 
+    log_token("CLOSE_BRACK", yytext);
+    return CLOSE_BRACK; 
+}
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 88 "flex/lexer.l"
-{ return OPEN_BRACE; }
+#line 182 "flex/lexer.l"
+{ 
+    log_token("OPEN_BRACE", yytext);
+    return OPEN_BRACE; 
+}
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 89 "flex/lexer.l"
-{ return CLOSE_BRACE; }
+#line 186 "flex/lexer.l"
+{ 
+    log_token("CLOSE_BRACE", yytext);
+    return CLOSE_BRACE; 
+}
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 90 "flex/lexer.l"
-{ return FINISH_LINECODE; }
+#line 190 "flex/lexer.l"
+{ 
+    log_token("FINISH_LINECODE", yytext);
+    return FINISH_LINECODE; 
+}
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 91 "flex/lexer.l"
-{ return SINGLE_DOT; }
+#line 194 "flex/lexer.l"
+{ 
+    log_token("SINGLE_DOT", yytext);
+    return SINGLE_DOT; 
+}
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 92 "flex/lexer.l"
-{ return SINGLE_COMMA; }
+#line 198 "flex/lexer.l"
+{ 
+    log_token("SINGLE_COMMA", yytext);
+    return SINGLE_COMMA; 
+}
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 93 "flex/lexer.l"
-{ return ASSIGN_VALUE; }
+#line 202 "flex/lexer.l"
+{ 
+    log_token("ASSIGN_VALUE", yytext);
+    return ASSIGN_VALUE; 
+}
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 94 "flex/lexer.l"
-{ return REFER_VALUE; }
+#line 206 "flex/lexer.l"
+{ 
+    log_token("REFER_VALUE", yytext);
+    return REFER_VALUE; 
+}
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 97 "flex/lexer.l"
+#line 212 "flex/lexer.l"
 {
+    log_token("IDENTIFIER", yytext);
     insert(yytext, strlen(yytext), UNDEF, line_number);
     return IDENTIFIER;
 }
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 101 "flex/lexer.l"
-{ return CLASS_NAME; }
+#line 217 "flex/lexer.l"
+{ 
+    log_token("CLASS_NAME", yytext);
+    return CLASS_NAME; 
+}
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 102 "flex/lexer.l"
+#line 221 "flex/lexer.l"
 {
+    log_token("CLASS_IMPORTED", yytext);
+
     yytext[strlen(yytext) - 1] = '\0';
     yytext += 1;
 
@@ -1117,46 +1238,58 @@ YY_RULE_SETUP
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 112 "flex/lexer.l"
-{ return INT_CONST; }
+#line 233 "flex/lexer.l"
+{ 
+    log_token("INT_CONST", yytext);
+    return INT_CONST; 
+}
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 113 "flex/lexer.l"
-{ return FLT_CONST; }
+#line 237 "flex/lexer.l"
+{ 
+    log_token("FLT_CONST", yytext);
+    return FLT_CONST; 
+}
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 114 "flex/lexer.l"
-{ return CHR_CONST; }
+#line 241 "flex/lexer.l"
+{ 
+    log_token("CHR_CONST", yytext);
+    return CHR_CONST; 
+}
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 115 "flex/lexer.l"
-{ return STR_L; }
+#line 245 "flex/lexer.l"
+{ 
+    log_token("STR_L", yytext);
+    return STR_L; 
+}
 	YY_BREAK
 case 53:
 /* rule 53 can match eol */
 YY_RULE_SETUP
-#line 118 "flex/lexer.l"
+#line 251 "flex/lexer.l"
 { line_number += 1; }     /* increment line number, when found line break character */
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 119 "flex/lexer.l"
+#line 252 "flex/lexer.l"
 /* remove whitespace, consuming them */
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
-#line 121 "flex/lexer.l"
+#line 254 "flex/lexer.l"
 { yyerror("Unknown character"); }
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
-#line 123 "flex/lexer.l"
+#line 256 "flex/lexer.l"
 ECHO;
 	YY_BREAK
-#line 1160 "lex.yy.c"
+#line 1293 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(MULTI_COMMENT):
 	yyterminate();
@@ -2162,5 +2295,5 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 123 "flex/lexer.l"
+#line 256 "flex/lexer.l"
 

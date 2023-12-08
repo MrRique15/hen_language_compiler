@@ -1,0 +1,29 @@
+class ClasseTeste{
+    pvt chr[10] testName;
+    pvt int testId;
+
+    pub fnc init(chr[10] name, int id){
+        testName = name;
+        testId = id;
+    }
+
+    pub fnc print(){
+        print("Teste: " + testName + " - " + testId);
+    }
+
+    pub fnc getTestName(){
+        ret testName;
+    }
+
+    pub fnc getTestId(){
+        ret testId;
+    }
+
+    pub fnc setTestName(chr[10] name){
+        testName = name;
+    }
+
+    pub fnc setTestId(int id){
+        testId = id;
+    }
+}

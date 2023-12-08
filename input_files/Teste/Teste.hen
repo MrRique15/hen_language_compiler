@@ -1,8 +1,0 @@
-fnc main(){
-    int a = 1, b = 2;
-    int c = 0;
-    int d, e = 1;
-    d = 4;
-    d = a - b;
-    rtn(a+b);
-}

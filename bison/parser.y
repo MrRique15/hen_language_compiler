@@ -8,15 +8,16 @@
 	extern FILE *yyout;
 	extern int line_number;
 	extern int yylex();
+    extern void import_class(char *path_name);
 
 	void yyerror();
 %}
  
 /* token definition */
-%token KW_CHAR KW_INT KW_FLOAT KW_DOUBLE KW_IF KW_ELSE KW_WHILE KW_FOR KW_CONTINUE KW_BREAK KW_FUNCTION KW_RETURN KW_CLASS KW_PUBLIC KW_PRIVATE KW_MAIN KW_NEW KW_PRINT
+%token KW_CHAR KW_INT KW_FLOAT KW_DOUBLE KW_IF KW_ELSE KW_WHILE KW_FOR KW_CONTINUE KW_BREAK KW_FUNCTION KW_RETURN KW_CLASS KW_PUBLIC KW_PRIVATE KW_MAIN KW_NEW KW_PRINT KW_IMPORT
 %token OP_ADD OP_MUL OP_DIV OP_INCR OP_OR OP_AND OP_NOT OP_EQUAL OP_RELATIVE
 %token OPEN_PAREN CLOSE_PAREN OPEN_BRACK CLOSE_BRACK OPEN_BRACE CLOSE_BRACE FINISH_LINECODE SINGLE_DOT SINGLE_COMMA ASSIGN_VALUE REFER_VALUE
-%token IDENTIFIER INT_CONST FLT_CONST CHR_CONST STR_L CLASS_NAME
+%token IDENTIFIER INT_CONST FLT_CONST CHR_CONST STR_L CLASS_NAME CLASS_IMPORTED
  
 %start program
  
@@ -24,85 +25,147 @@
  
 %%
 
-program: KW_FUNCTION KW_MAIN OPEN_PAREN CLOSE_PAREN OPEN_BRACE declarations statements returns CLOSE_BRACE other_functions | class;
+program: main_function ;
 
-declarations: declarations declaration | declaration;
+main_function: type KW_MAIN OPEN_PAREN params CLOSE_PAREN OPEN_BRACE function_body CLOSE_BRACE
+    {
+        printf("main function\n");
+    }
+    ;
 
-declaration: type names FINISH_LINECODE;
+type: KW_INT
+    {
+        printf("int\n");
+    }
+    | KW_FLOAT
+    {
+        printf("float\n");
+    }
+    | KW_DOUBLE
+    {
+        printf("double\n");
+    }
+    | KW_CHAR
+    {
+        printf("char\n");
+    }
+    | KW_FUNCTION
+    {
+        printf("void\n");
+    } 
+    ;
 
-type: KW_INT | KW_CHAR | KW_FLOAT | KW_DOUBLE | KW_FUNCTION;
+params: type IDENTIFIER
+    {
+        printf("param\n");
+    }
+    | type IDENTIFIER SINGLE_COMMA params
+    {
+        printf("param\n");
+    }
+    | /* empty */
+    {
+        printf("no params\n");
+    }
+    ;
 
-class: KW_CLASS CLASS_NAME OPEN_BRACE declarations CLOSE_BRACE;
+function_body: statement
+    {
+        printf("function body\n");
+    }
+    | statement function_body
+    {
+        printf("function body\n");
+    }
+    ;
 
-names: variable | names SINGLE_COMMA variable;
+statement: assignment_statement
+    {
+        printf("assignment statement found\n");
+    }
+    | return_statement
+    {
+        printf("return statement\n");
+    }
+    | /* empty */
+    {
+        printf("no statement\n");
+    }
+    ;
 
-variable: IDENTIFIER |
-    pointer IDENTIFIER |
-    IDENTIFIER array
-;
- 
-pointer: pointer OP_MUL | OP_MUL;
- 
-array: array OPEN_BRACK INT_CONST CLOSE_BRACK | OPEN_BRACK INT_CONST CLOSE_BRACK;
- 
-statements: statements statement | statement;
- 
-statement:
-	if_statement | for_statement | while_statement | assigment |
-	KW_CONTINUE FINISH_LINECODE | KW_BREAK FINISH_LINECODE | returns FINISH_LINECODE | print_statement FINISH_LINECODE 
-;
+assignment_statement: type IDENTIFIER ASSIGN_VALUE expression FINISH_LINECODE 
+    {
+        printf("assignment statement\n");
+    }
+    ;
 
-returns: KW_RETURN OPEN_PAREN expression CLOSE_PAREN FINISH_LINECODE | /* empty */ ;
+expression: expression OP_ADD expression
+    {
+        printf("expression\n");
+    }
+    | expression OP_MUL expression
+    {
+        printf("expression\n");
+    }
+    | expression OP_DIV expression
+    {
+        printf("expression\n");
+    }
+    | expression OP_INCR
+    {
+        printf("expression\n");
+    }
+    | expression OP_OR expression
+    {
+        printf("expression\n");
+    }
+    | expression OP_AND expression
+    {
+        printf("expression\n");
+    }
+    | expression OP_NOT expression
+    {
+        printf("expression\n");
+    }
+    | expression OP_EQUAL expression
+    {
+        printf("expression\n");
+    }
+    | expression OP_RELATIVE expression
+    {
+        printf("expression\n");
+    }
+    | INT_CONST
+    {
+        printf("expression\n");
+    }
+    | FLT_CONST
+    {
+        printf("expression\n");
+    }
+    | CHR_CONST
+    {
+        printf("expression\n");
+    }
+    | STR_L
+    {
+        printf("expression\n");
+    }
+    | IDENTIFIER
+    {
+        printf("expression\n");
+    }
+    | /* empty */
+    {
+        printf("no expression\n");
+    }
+    ;
 
-print_statement: KW_PRINT OPEN_PAREN expression CLOSE_PAREN FINISH_LINECODE
-
-if_statement: KW_IF OPEN_PAREN expression CLOSE_PAREN tail else_if_part else_part ;
- 
-else_if_part: 
-	else_if_part KW_ELSE KW_IF OPEN_PAREN expression CLOSE_PAREN tail |
-	KW_ELSE KW_IF OPEN_PAREN expression CLOSE_PAREN tail  |
-	/* empty */
-; 
-else_part: KW_ELSE tail | /* empty */ ; 
- 
-for_statement: KW_FOR OPEN_PAREN expression FINISH_LINECODE expression FINISH_LINECODE expression CLOSE_PAREN tail ;
- 
-while_statement: KW_WHILE OPEN_PAREN expression CLOSE_PAREN tail ;
- 
-tail: statement FINISH_LINECODE | OPEN_BRACE statements CLOSE_BRACE ;
-
-expression:
-    expression OP_ADD expression |
-    expression OP_MUL expression |
-    expression OP_DIV expression |
-    expression OP_INCR |
-    OP_INCR expression |
-    expression OP_OR expression |
-    expression OP_AND expression |
-    OP_NOT expression |
-    expression OP_EQUAL expression |
-    expression OP_RELATIVE expression |
-    OPEN_PAREN expression CLOSE_PAREN |
-    variable |
-    sign constant |
-
-;
-
-sign: OP_ADD | /* empty */ ; 
- 
-constant: INT_CONST | FLT_CONST | CHR_CONST ;
- 
-assigment: reference variable ASSIGN_VALUE expression FINISH_LINECODE ; 
- 
-reference: REFER_VALUE | /* empty */ ;
-
-other_functions: other_functions function | function ;
-
-function: KW_FUNCTION type IDENTIFIER OPEN_PAREN parameters CLOSE_PAREN OPEN_BRACE declarations statements CLOSE_BRACE | /* empty */ ;
-
-parameters: parameters SINGLE_COMMA parameter | parameter | /* empty */ ;
-
-parameter: type IDENTIFIER | type IDENTIFIER array | type pointer IDENTIFIER | type pointer IDENTIFIER array ;
+return_statement: KW_RETURN expression FINISH_LINECODE
+    {
+        printf("return statement\n");
+    }
+    ;
 
 %%
  
@@ -111,7 +174,20 @@ void yyerror (char *message)
     fprintf(stderr, "Syntax error at line %d\n", line_number);
     // exit(1);
 }
- 
+
+void import_class(char *path_name){
+    FILE *input_file = fopen(path_name, "r");
+
+    if (!input_file) {
+        fprintf(stderr, "Error while trying to open file %s to compile\n", path_name);
+        exit(1);
+    }
+
+    yyin = input_file;
+    yyparse();
+    fclose(yyin);
+}
+
 int main (int argc, char *argv[]){
 
     if(argc < 2){

@@ -26,8 +26,9 @@ digit       [0-9]
 alnum       {alpha}|{digit}|"_"
 print       [ -~]
 
-IDENTIFIER       {lower}({alnum})*
+IDENTIFIER     {lower}({alnum})* 
 CLASS_NAME     {upper}({alnum})*
+CLASS_IMPORTED {CLASS_NAME}"/"{CLASS_NAME}".hen"
 INT_CONST      "0"|[0-9]{digit}*
 FLT_CONST      "0"|{digit}*"."{digit}+
 CHR_CONST      (\'{print}\')|(\'\\[nftrbv]\')
@@ -62,6 +63,7 @@ STR_L          \"{print}*\"
 "pvt"           { return KW_PRIVATE; }
 "pub"           { return KW_PUBLIC; }
 "main"          { return KW_MAIN; }
+"import"        { return KW_IMPORT; }
 
 
 "+"|"-"           { return OP_ADD; }
@@ -75,8 +77,10 @@ STR_L          \"{print}*\"
 ">"|"<"|">="|"<=" { return OP_RELATIVE; }
 
 
-"("             { return OPEN_PAREN; }
-")"             { return CLOSE_PAREN; }
+"("             { return OPEN_PAREN; 
+}
+")"             { return CLOSE_PAREN; 
+}
 "["             { return OPEN_BRACK; }
 "]"             { return CLOSE_BRACK; }
 "{"             { return OPEN_BRACE; }
@@ -88,15 +92,16 @@ STR_L          \"{print}*\"
 "&"             { return REFER_VALUE; }
 
 
-{IDENTIFIER}     { 
+{IDENTIFIER}     {
     insert(yytext, strlen(yytext), UNDEF, line_number);
     return IDENTIFIER;
 }
-{CLASS_NAME}    { return CLASS_NAME; }
-{INT_CONST}     { return INT_CONST; }
-{FLT_CONST}     { return FLT_CONST; }
-{CHR_CONST}     { return CHR_CONST; }
-{STR_L}         { return STR_L; }
+{CLASS_NAME}     { return CLASS_NAME; }
+{CLASS_IMPORTED} { return CLASS_IMPORTED; }
+{INT_CONST}      { return INT_CONST; }
+{FLT_CONST}      { return FLT_CONST; }
+{CHR_CONST}      { return CHR_CONST; }
+{STR_L}          { return STR_L; }
 
  
 "\n"            { line_number += 1; }     /* increment line number, when found line break character */

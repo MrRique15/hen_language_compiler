@@ -1,8 +1,5 @@
 fnc main(){
-    int a, b;
-
-    a = 5;
-    b = 10;
-
-    rtn (a + b);
+    int a = 1;
+    int b = 2;
+    rtn(a+b);
 }

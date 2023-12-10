@@ -256,5 +256,5 @@ STR_L          \"{print}*\"
 [ \t\r\f]+                                /* remove whitespace, consuming them */
  
 .               { yyerror("Unknown character"); }
- 
+
 %%

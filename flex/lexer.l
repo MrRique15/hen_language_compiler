@@ -87,6 +87,10 @@ STR_L          \"{print}*\"
     log_token("KW_FUNCTION", yytext);
     return KW_FUNCTION; 
 }
+"void"           {
+    log_token("KW_VOID", yytext);
+    return KW_VOID; 
+}
 "rtn"           {
     log_token("KW_RETURN", yytext);
     return KW_RETURN; 

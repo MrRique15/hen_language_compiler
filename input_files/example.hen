@@ -2,16 +2,19 @@ import "ClasseTeste/ClasseTeste.hen";
 
 int globZ;
 
-fnc main(){
+fnc void main(){
     int a = 1, b = 2;
     int c = 0;
     int d, e = 1;
+
     d = 4;
     d = a - b;
+
     if(a > b){
         rtn(a);
     }els if(a < b){
         rtn(b);
     }
+
     rtn(a+b);
 }

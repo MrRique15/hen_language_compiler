@@ -15,11 +15,11 @@
     FILE *output_lexer_log;
     FILE *output_parser_log;
 
-	void yyerror();
+	void yyerror(char *message);
 %}
  
 /* token definition */
-%token KW_CHAR KW_INT KW_FLOAT KW_DOUBLE KW_IF KW_ELSE KW_WHILE KW_FOR KW_CONTINUE KW_BREAK KW_FUNCTION KW_RETURN KW_CLASS KW_PUBLIC KW_PRIVATE KW_MAIN KW_NEW KW_PRINT KW_IMPORT
+%token KW_CHAR KW_INT KW_FLOAT KW_DOUBLE KW_IF KW_ELSE KW_WHILE KW_FOR KW_CONTINUE KW_BREAK KW_FUNCTION KW_RETURN KW_CLASS KW_PUBLIC KW_PRIVATE KW_MAIN KW_NEW KW_PRINT KW_IMPORT KW_VOID
 %token OP_ADD OP_MUL OP_DIV OP_INCR OP_OR OP_AND OP_NOT OP_EQUAL OP_RELATIVE
 %token OPEN_PAREN CLOSE_PAREN OPEN_BRACK CLOSE_BRACK OPEN_BRACE CLOSE_BRACE FINISH_LINECODE SINGLE_DOT SINGLE_COMMA ASSIGN_VALUE REFER_VALUE
 %token IDENTIFIER INT_CONST FLT_CONST CHR_CONST STR_L CLASS_NAME CLASS_IMPORTED
@@ -47,7 +47,7 @@ general_imports:
     }
     ;
 
-main_function: type KW_MAIN OPEN_PAREN params CLOSE_PAREN OPEN_BRACE function_body CLOSE_BRACE
+main_function: KW_FUNCTION type KW_MAIN OPEN_PAREN params CLOSE_PAREN OPEN_BRACE function_body CLOSE_BRACE
     {
         log_parser("main function found");
     }
@@ -75,7 +75,7 @@ type: KW_INT
     {
         log_parser("type char found");
     }
-    | KW_FUNCTION
+    | KW_VOID
     {
         log_parser("type void found");
     } 
@@ -112,7 +112,7 @@ statement:
 	if_statement | for_statement | while_statement | assignment_statement | return_statement |
 	KW_CONTINUE FINISH_LINECODE | KW_BREAK FINISH_LINECODE ;
 ;
- 
+
 if_statement: KW_IF OPEN_PAREN expression CLOSE_PAREN OPEN_BRACE function_body CLOSE_BRACE else_part
     {
         log_parser("if statement found");
@@ -256,8 +256,8 @@ expression: expression OP_ADD expression
  
 void yyerror (char *message)
 {   
-    fprintf(stderr, "Syntax error at line %d\n", line_number);
-    // exit(1);
+    fprintf(stderr, "Syntax error at line %d - %s\n", line_number, message);
+    // exit(1);   
 }
 
 void import_class(char *class_name, char *path_name){

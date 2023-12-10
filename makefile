@@ -4,7 +4,7 @@ OUTPUT_FOLDER = output_files
 
 
 build:
-	bison -d bison/parser.y
+	bison -d bison/parser.y -v
 	flex flex/lexer.l
 	gcc -o lexer parser.tab.c lex.yy.c
 

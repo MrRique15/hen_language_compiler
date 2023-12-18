@@ -253,7 +253,14 @@ expression: expression OP_ADD expression
     ;
 
 %%
- 
+
+typedef struct importClass{
+    char *path;
+    struct importClass *next;
+} importClass;
+
+importClass *imported_classes = NULL;
+
 void yyerror (char *message)
 {   
     fprintf(stderr, "Syntax error at line %d - %s\n", line_number, message);
@@ -272,6 +279,21 @@ void import_class(char *class_name, char *path_name){
     printf("----------\nFound a Class into the code given\nNAME: %-10s \tPATH: %s\n----------\n", class_name, complete_path);
 
     // add here the functions to import the class and start its parsing
+    if(imported_classes == NULL){
+        imported_classes = malloc(sizeof(importClass));
+        imported_classes->path = complete_path;
+        imported_classes->next = NULL;
+    }else{
+        importClass *temp = imported_classes;
+
+        while(temp->next != NULL){
+            temp = temp->next;
+        }
+
+        temp->next = malloc(sizeof(importClass));
+        temp->next->path = complete_path;
+        temp->next->next = NULL;
+    }
 
     return;
 }
@@ -308,15 +330,43 @@ int main (int argc, char *argv[]){
 	int flag;
 	yyin = input_file;
 	flag = yyparse();
-	fclose(yyin);
-    
+    fclose(yyin);
+
     fclose(output_lexer_log);
     fclose(output_parser_log);
- 
-	// symbol table dump
+
+    // symbol table dump
 	yyout = fopen("output_files/symtab_dump.out", "w");
 	symtab_dump(yyout);
-	fclose(yyout);	
+	fclose(yyout);
+
+    if(imported_classes != NULL){
+        importClass *temp = imported_classes;
+
+        printf("Iniciando importação de classes\n");
+
+        while(temp != NULL){
+            line_number = 1;
+            FILE *input_file = fopen(temp->path, "r");
+
+            if (!input_file) {
+                fprintf(stderr, "Error while trying to open file %s to compile\n", temp->path);
+                return EXIT_FAILURE;
+            }
+
+            output_lexer_log = fopen("output_files/output_lexic_log.out", "a");
+            output_parser_log = fopen("output_files/output_parser_log.out", "a");
+
+            yyin = input_file;
+            flag = yyparse();
+            fclose(yyin);
+
+            fclose(output_lexer_log);
+            fclose(output_parser_log);
+
+            temp = temp->next;
+        }
+    }	
  
 	return flag;
 }

@@ -15,9 +15,11 @@
     FILE *output_lexer_log;
     FILE *output_parser_log;
 
-	void yyerror(char *message);
+	void yyerror(char const *message);
 %}
- 
+
+%define parse.error verbose
+
 /* token definition */
 %token KW_CHAR KW_INT KW_FLOAT KW_DOUBLE KW_IF KW_ELSE KW_WHILE KW_FOR KW_CONTINUE KW_BREAK KW_FUNCTION KW_RETURN KW_CLASS KW_PUBLIC KW_PRIVATE KW_MAIN KW_NEW KW_PRINT KW_IMPORT KW_VOID
 %token OP_ADD OP_MUL OP_DIV OP_INCR OP_OR OP_AND OP_NOT OP_EQUAL OP_RELATIVE
@@ -30,7 +32,7 @@
  
 %%
 
-program: general_imports statement main_function ;
+program: general_imports statement main_function | class_program ;
 
 general_imports: 
     general_import 
@@ -50,6 +52,44 @@ general_imports:
 main_function: KW_FUNCTION type KW_MAIN OPEN_PAREN params CLOSE_PAREN OPEN_BRACE function_body CLOSE_BRACE
     {
         log_parser("main function found");
+    }
+    ;
+
+class_program: KW_CLASS CLASS_NAME OPEN_BRACE class_body CLOSE_BRACE
+    {
+        log_parser("class program found");
+    }
+    ;
+
+class_body: class_variables
+    {
+        log_parser("class body found");
+    }
+    ;
+
+class_variables: class_variable
+    {
+        log_parser("single class variable found");
+    }
+    | class_variable class_variables
+    {
+        log_parser("multiple class variables found");
+    }
+    | /* empty */
+    {
+        log_parser("no class variables left");
+    }
+    ;
+
+class_variable: assignment_statement | class_function
+    {
+        log_parser("class variable found");
+    }
+    ;
+
+class_function: access KW_FUNCTION type IDENTIFIER OPEN_PAREN params CLOSE_PAREN OPEN_BRACE function_body CLOSE_BRACE
+    {
+        log_parser("class function found");
     }
     ;
 
@@ -107,9 +147,9 @@ function_body: statement
     {
         log_parser("no function body");
     };
-
+ 
 statement:
-	if_statement | for_statement | while_statement | assignment_statement | return_statement |
+	if_statement | for_statement | while_statement | assignment_statement | return_statement | print_statement |
 	KW_CONTINUE FINISH_LINECODE | KW_BREAK FINISH_LINECODE ;
 ;
 
@@ -190,6 +230,12 @@ return_statement: KW_RETURN OPEN_PAREN expression CLOSE_PAREN FINISH_LINECODE
     }
     ;
 
+print_statement: KW_PRINT OPEN_PAREN expression CLOSE_PAREN FINISH_LINECODE
+    {
+        log_parser("print statement achieved");
+    }
+    ;
+
 expression: expression OP_ADD expression
     {
         log_parser("add expression");
@@ -261,7 +307,7 @@ typedef struct importClass{
 
 importClass *imported_classes = NULL;
 
-void yyerror (char *message)
+void yyerror (char const *message)
 {   
     fprintf(stderr, "Syntax error at line %d - %s\n", line_number, message);
     // exit(1);   
@@ -325,7 +371,9 @@ int main (int argc, char *argv[]){
 
 	// initialize symbol table
 	init_hash_table();
- 
+    
+    printf("Iniciando compilação do programa\n");
+    
 	// parsing
 	int flag;
 	yyin = input_file;
@@ -366,7 +414,11 @@ int main (int argc, char *argv[]){
 
             temp = temp->next;
         }
+
+        printf("Compilação das classes finalizada\n");
+        free(imported_classes);
     }	
- 
+    
+    printf("Compilação do programa finalizada\n");
 	return flag;
 }

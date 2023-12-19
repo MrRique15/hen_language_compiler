@@ -309,8 +309,8 @@ importClass *imported_classes = NULL;
 
 void yyerror (char const *message)
 {   
-    fprintf(stderr, "Syntax error at line %d - %s\n", line_number, message);
-    // exit(1);   
+    fprintf(stderr, "\n[-ERROR-]: %s at line %d\n\n",message, line_number);
+    exit(1);   
 }
 
 void import_class(char *class_name, char *path_name){
@@ -352,6 +352,11 @@ void log_parser(char *message){
     fprintf(output_parser_log, "MESSAGE: %-50s \tLINE: %d\n", message, line_number);
 }
 
+void prepare_log_files(char *compiled_file_name){
+    fprintf(output_lexer_log, "\n--------------------\nGENERATING LOG TOKENS FOR FILE --> [%s]\n--------------------\n", compiled_file_name);
+    fprintf(output_parser_log, "\n--------------------\nGENERATING LOG PARSER FOR FILE --> [%s]\n--------------------\n", compiled_file_name);
+}
+
 int main (int argc, char *argv[]){
 
     if(argc < 2){
@@ -370,10 +375,14 @@ int main (int argc, char *argv[]){
     output_parser_log = fopen("output_files/output_parser_log.out", "w");
 
 	// initialize symbol table
+    FILE *clear_hashLog = fopen("output_files/output_hash_log.out", "w");
+    fclose(clear_hashLog);
+    
 	init_hash_table();
     
-    printf("Iniciando compilação do programa\n");
-    
+    printf("\n\nStarted compilation of file --> %s\n", argv[1]);
+    prepare_log_files(argv[1]);
+
 	// parsing
 	int flag;
 	yyin = input_file;
@@ -391,19 +400,23 @@ int main (int argc, char *argv[]){
     if(imported_classes != NULL){
         importClass *temp = imported_classes;
 
-        printf("Iniciando importação de classes\n");
-
         while(temp != NULL){
             line_number = 1;
             FILE *input_file = fopen(temp->path, "r");
 
             if (!input_file) {
-                fprintf(stderr, "Error while trying to open file %s to compile\n", temp->path);
+                fprintf(stderr, "\n[-ERROR-]: error while trying to open file %s to compile, make sure the class exists when importing it!\n\n", temp->path);
                 return EXIT_FAILURE;
             }
+            
+            printf("Started compilation of file --> %s\n", temp->path);
 
             output_lexer_log = fopen("output_files/output_lexic_log.out", "a");
             output_parser_log = fopen("output_files/output_parser_log.out", "a");
+
+            prepare_log_files(temp->path);
+            
+            init_hash_table();
 
             yyin = input_file;
             flag = yyparse();
@@ -412,13 +425,27 @@ int main (int argc, char *argv[]){
             fclose(output_lexer_log);
             fclose(output_parser_log);
 
+            printf("Finished compilation of file --> %s\n", temp->path);
+
+            // symbol table dump
+            yyout = fopen("output_files/symtab_dump.out", "a");
+            symtab_dump(yyout);
+            fclose(yyout);
+
             temp = temp->next;
         }
 
-        printf("Compilação das classes finalizada\n");
         free(imported_classes);
     }	
     
-    printf("Compilação do programa finalizada\n");
+    printf("Finished compilation of file --> %s\n", argv[1]);
+    printf("\n\nAll logs generated in output_files folder\n");
+    
+    if(flag == 0){
+        printf("Compilation successful\n");
+    }else{
+        printf("Compilation failed\n");
+    }
+
 	return flag;
 }

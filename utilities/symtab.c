@@ -26,7 +26,10 @@ void init_hash_table(){
         hash_table[i] = NULL;
     }
 
-    output_hash_log = fopen("output_files/output_hash_log.out", "w");
+    output_hash_log = fopen("output_files/output_hash_log.out", "a");
+    if(output_hash_log == NULL){
+        output_hash_log = fopen("output_files/output_hash_log.out", "w");
+    }
 }
 
 // hash function to hash the name of a value
@@ -44,6 +47,7 @@ unsigned int hash(char *key){
  
 // insert a value into the symbol table
 void insert(char *name, int len, int type, int line_number){
+
     unsigned int hashval = hash(name);  // get hash name of the item to be inserted
     list_t *l = hash_table[hashval];    // get the list at that hash name
     
@@ -51,7 +55,6 @@ void insert(char *name, int len, int type, int line_number){
     while ((l != NULL) && (strcmp(name,l->st_name) != 0)){
         l = l->next;
     }
-    
     
     if (l == NULL){
         // value not yet in table, so insert it
@@ -219,4 +222,6 @@ void symtab_dump(FILE * of){
             }
         }
     }
+
+    free(hash_table);
 }

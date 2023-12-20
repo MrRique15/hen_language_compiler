@@ -149,7 +149,7 @@ function_body: statement
     };
  
 statement:
-	if_statement | for_statement | while_statement | assignment_statement | return_statement | print_statement |
+	if_statement | for_statement | while_statement | assignment_statement | return_statement | print_statement | function_call | 
 	KW_CONTINUE FINISH_LINECODE | KW_BREAK FINISH_LINECODE ;
 ;
 
@@ -208,7 +208,10 @@ assignment_statement: access type IDENTIFIER ASSIGN_VALUE expression FINISH_LINE
     {
         log_parser("multiple start simple assignments found");
     }
-    ;
+    | CLASS_NAME IDENTIFIER ASSIGN_VALUE KW_NEW CLASS_NAME OPEN_PAREN params CLOSE_PAREN FINISH_LINECODE
+    {
+        log_parser("single start class assignment found");
+    }
 
 access: KW_PRIVATE
     {
@@ -235,6 +238,11 @@ print_statement: KW_PRINT OPEN_PAREN expression CLOSE_PAREN FINISH_LINECODE
         log_parser("print statement achieved");
     }
     ;
+
+function_call: IDENTIFIER SINGLE_DOT IDENTIFIER OPEN_PAREN params CLOSE_PAREN FINISH_LINECODE
+    {
+        log_parser("class function call achieved");
+    }
 
 expression: expression OP_ADD expression
     {
@@ -380,7 +388,7 @@ int main (int argc, char *argv[]){
     
 	init_hash_table();
     
-    printf("\n\nStarted compilation of file --> %s\n", argv[1]);
+    printf("\n\nStarted  compilation of file --> %s\n", argv[1]);
     prepare_log_files(argv[1]);
 
 	// parsing
@@ -409,7 +417,7 @@ int main (int argc, char *argv[]){
                 return EXIT_FAILURE;
             }
             
-            printf("Started compilation of file --> %s\n", temp->path);
+            printf("Started  compilation of file --> %s\n", temp->path);
 
             output_lexer_log = fopen("output_files/output_lexic_log.out", "a");
             output_parser_log = fopen("output_files/output_parser_log.out", "a");
@@ -442,7 +450,7 @@ int main (int argc, char *argv[]){
     printf("\n\nAll logs generated in output_files folder\n");
     
     if(flag == 0){
-        printf("Compilation successful\n");
+        printf("Compilation completed successful\n");
     }else{
         printf("Compilation failed\n");
     }

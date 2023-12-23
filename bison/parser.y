@@ -16,6 +16,8 @@
     FILE *output_parser_log;
 
 	void yyerror(char const *message);
+
+    extern char *current_compiling;
 %}
 
 %define parse.error verbose
@@ -317,7 +319,7 @@ importClass *imported_classes = NULL;
 
 void yyerror (char const *message)
 {   
-    fprintf(stderr, "\n[-ERROR-]: %s at line %d\n\n",message, line_number);
+    fprintf(stderr, "\n[-ERROR-]: %s at line %d, in FILE -> %s\n\n",message, line_number, current_compiling);
     exit(1);   
 }
 
@@ -390,6 +392,7 @@ int main (int argc, char *argv[]){
     
     printf("\n\nStarted  compilation of file --> %s\n", argv[1]);
     prepare_log_files(argv[1]);
+    current_compiling = argv[1];
 
 	// parsing
 	int flag;
@@ -410,7 +413,7 @@ int main (int argc, char *argv[]){
 
         while(temp != NULL){
             line_number = 1;
-            FILE *input_file = fopen(temp->path, "r");
+            input_file = fopen(temp->path, "r");
 
             if (!input_file) {
                 fprintf(stderr, "\n[-ERROR-]: error while trying to open file %s to compile, make sure the class exists when importing it!\n\n", temp->path);
@@ -418,7 +421,7 @@ int main (int argc, char *argv[]){
             }
             
             printf("Started  compilation of file --> %s\n", temp->path);
-
+            current_compiling = temp->path;
             output_lexer_log = fopen("output_files/output_lexic_log.out", "a");
             output_parser_log = fopen("output_files/output_parser_log.out", "a");
 

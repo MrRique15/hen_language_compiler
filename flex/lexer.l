@@ -16,6 +16,8 @@
 
     extern FILE *yyin;
     extern FILE *yyout;
+
+    char *current_compiling;
 %}
 
 %x MULTI_COMMENT
@@ -256,7 +258,7 @@ STR_L          \"{print}*\"
 [ \t\r\f]+                                /* remove whitespace, consuming them */
  
 .               { 
-    fprintf(stderr,"\n[-ERROR-]: lexical error, unrecognized character '%c' at line %d\n\n", yytext[0], line_number);
+    fprintf(stderr,"\n[-ERROR-]: lexical error, unrecognized character '%c' at line %d, in FILE -> %s\n\n", yytext[0], line_number, current_compiling);
     exit(1);
 }
 

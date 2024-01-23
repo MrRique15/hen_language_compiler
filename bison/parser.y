@@ -23,27 +23,25 @@
 %define parse.error verbose
 
 /* token definition */
-%token KW_CHAR KW_INT KW_FLOAT KW_DOUBLE KW_IF KW_ELSE KW_WHILE KW_FOR KW_CONTINUE KW_BREAK KW_FUNCTION KW_RETURN KW_CLASS KW_PUBLIC KW_PRIVATE KW_MAIN KW_NEW KW_PRINT KW_IMPORT KW_VOID
+%left KW_IF
+%right KW_ELSE
+
+%token KW_CHAR KW_INT KW_FLOAT KW_DOUBLE KW_WHILE KW_FOR KW_CONTINUE KW_BREAK KW_FUNCTION KW_RETURN KW_CLASS KW_PUBLIC KW_PRIVATE KW_MAIN KW_NEW KW_PRINT KW_IMPORT KW_VOID
 %token OP_ADD OP_MUL OP_DIV OP_INCR OP_OR OP_AND OP_NOT OP_EQUAL OP_RELATIVE
 %token OPEN_PAREN CLOSE_PAREN OPEN_BRACK CLOSE_BRACK OPEN_BRACE CLOSE_BRACE FINISH_LINECODE SINGLE_DOT SINGLE_COMMA ASSIGN_VALUE REFER_VALUE
 %token IDENTIFIER INT_CONST FLT_CONST CHR_CONST STR_L CLASS_NAME CLASS_IMPORTED
- 
+
 %start program
  
 /* expression priorities and rules */
  
 %%
 
-program: general_imports statement main_function | class_program ;
+program: multiple_imports statement main_function | class_program ;
 
-general_imports: 
-    general_import 
+multiple_imports: single_import multiple_imports
     {
-        log_parser("single general import found");
-    }
-    | general_import general_imports
-    {
-        log_parser("multiple general imports found");
+        log_parser("import structure found");
     }
     | /* empty */
     {
@@ -69,13 +67,9 @@ class_body: class_variables
     }
     ;
 
-class_variables: class_variable
+class_variables: class_variable class_variables
     {
-        log_parser("single class variable found");
-    }
-    | class_variable class_variables
-    {
-        log_parser("multiple class variables found");
+        log_parser("class variable found");
     }
     | /* empty */
     {
@@ -95,9 +89,9 @@ class_function: access KW_FUNCTION type IDENTIFIER OPEN_PAREN params CLOSE_PAREN
     }
     ;
 
-general_import: KW_IMPORT CLASS_IMPORTED FINISH_LINECODE
+single_import: KW_IMPORT CLASS_IMPORTED FINISH_LINECODE
     {
-        log_parser("general import execution");
+        log_parser("simgle import execution");
     }
     ;
 
@@ -123,11 +117,17 @@ type: KW_INT
     } 
     ;
 
-params: type IDENTIFIER
+params: type IDENTIFIER params_deriv
     {
-        log_parser("single param found");
+        log_parser("params found");
     }
-    | type IDENTIFIER SINGLE_COMMA params
+    | /* empty */
+    {
+        log_parser("no params left");
+    }
+    ;
+
+params_deriv: SINGLE_COMMA params 
     {
         log_parser("multiple params found");
     }
@@ -137,34 +137,48 @@ params: type IDENTIFIER
     }
     ;
 
-function_body: statement
+function_body: statement function_body
     {
-        log_parser("simple function body");
-    }
-    | statement function_body
-    {
-        log_parser("complex function body");
+        log_parser("function body");
     }
     | /* empty */
     {
         log_parser("no function body");
-    };
+    }
+    ;
  
-statement:
-	if_statement | for_statement | while_statement | assignment_statement | return_statement | print_statement | function_call | 
-	KW_CONTINUE FINISH_LINECODE | KW_BREAK FINISH_LINECODE ;
-;
+statement: if_statement 
+    | for_statement 
+    | while_statement 
+    | assignment_statement 
+    | return_statement 
+    | print_statement 
+    | function_call 
+    | KW_CONTINUE FINISH_LINECODE 
+    | KW_BREAK FINISH_LINECODE 
+    ;
 
-if_statement: KW_IF OPEN_PAREN expression CLOSE_PAREN OPEN_BRACE function_body CLOSE_BRACE else_part
+if_statement: KW_IF OPEN_PAREN expression CLOSE_PAREN OPEN_BRACE function_body CLOSE_BRACE if_deriv
     {
         log_parser("if statement found");
-    };
+    }
+    ;
 
-else_part: KW_ELSE OPEN_BRACE function_body CLOSE_BRACE
+if_deriv: KW_ELSE else_deriv
     {
         log_parser("simple else found");
     }
-    | KW_ELSE if_statement
+    | /* empty */
+    {
+        log_parser("no else found");
+    }
+    ;
+
+else_deriv: OPEN_BRACE function_body CLOSE_BRACE
+    {
+        log_parser("simple else found");
+    }
+    | KW_IF OPEN_PAREN expression CLOSE_PAREN OPEN_BRACE function_body CLOSE_BRACE if_deriv
     {
         log_parser("compose else found");
     }
@@ -186,34 +200,47 @@ for_statement: KW_FOR OPEN_PAREN assignment_statement expression FINISH_LINECODE
     }
     ;
 
-assignment_statement: access type IDENTIFIER ASSIGN_VALUE expression FINISH_LINECODE 
+assignment_statement: 
+    access type IDENTIFIER assignment_statement_deriv
     {
-        log_parser("simple compose start assignment found");
+        log_parser("variable declaration started case 1");
     }
-    | access type IDENTIFIER ASSIGN_VALUE expression SINGLE_COMMA assignment_statement
+    | IDENTIFIER ASSIGN_VALUE expression assign_assignment_deriv
     {
-        log_parser("multiple compose start assignments found");
-    }
-    | IDENTIFIER ASSIGN_VALUE expression FINISH_LINECODE
-    {
-        log_parser("simple compose assignment found");
-    }
-    | IDENTIFIER ASSIGN_VALUE expression SINGLE_COMMA assignment_statement
-    {
-        log_parser("multiple compose assignments found");
-    }
-    | access type IDENTIFIER FINISH_LINECODE
-    {
-        log_parser("simple start assignment found");
-    }
-    | access type IDENTIFIER SINGLE_COMMA assignment_statement
-    {
-        log_parser("multiple start simple assignments found");
+        log_parser("variable declaration started case 2");
     }
     | CLASS_NAME IDENTIFIER ASSIGN_VALUE KW_NEW CLASS_NAME OPEN_PAREN params CLOSE_PAREN FINISH_LINECODE
     {
-        log_parser("single start class assignment found");
+        log_parser("variable declaration started case 3");
     }
+    ;
+
+assignment_statement_deriv:
+    FINISH_LINECODE
+    {
+        log_parser("variable declaration FINISHED case 1");
+    }
+    | SINGLE_COMMA assignment_statement
+    {
+        log_parser("variable declaration RECURSIVE case 2");
+    }
+    | ASSIGN_VALUE expression assign_assignment_deriv
+    {
+        log_parser("variable declaration DERIVATED case 3");
+    }
+    ;
+
+assign_assignment_deriv:
+    FINISH_LINECODE
+    {
+        log_parser("variable declaration DERIVATED FINISHED case 1");
+    }
+    | SINGLE_COMMA assignment_statement
+    {
+        log_parser("variable declaration DERIVATED RECURSIVE case 2");
+    }
+    ;
+
 
 access: KW_PRIVATE
     {
@@ -245,68 +272,78 @@ function_call: IDENTIFIER SINGLE_DOT IDENTIFIER OPEN_PAREN params CLOSE_PAREN FI
     {
         log_parser("class function call achieved");
     }
+    ;
 
-expression: expression OP_ADD expression
-    {
-        log_parser("add expression");
-    }
-    | expression OP_MUL expression
-    {
-        log_parser("mult expression");
-    }
-    | expression OP_DIV expression
-    {
-        log_parser("div expression");
-    }
-    | expression OP_INCR
-    {
-        log_parser("increment expression");
-    }
-    | expression OP_OR expression
-    {
-        log_parser("or expression");
-    }
-    | expression OP_AND expression
-    {
-        log_parser("and expression");
-    }
-    | expression OP_NOT expression
-    {
-        log_parser("not expression");
-    }
-    | expression OP_EQUAL expression
-    {
-        log_parser("equal expression");
-    }
-    | expression OP_RELATIVE expression
-    {
-        log_parser("relative expression");
-    }
-    | INT_CONST
+expression: 
+    INT_CONST expression_deriv
     {
         log_parser("int value expression");
     }
-    | FLT_CONST
+    | FLT_CONST expression_deriv
     {
         log_parser("float value expression");
     }
-    | CHR_CONST
+    | CHR_CONST expression_deriv
     {
         log_parser("char value expression");
     }
-    | STR_L
+    | STR_L expression_deriv
     {
         log_parser("string value expression");
     }
-    | IDENTIFIER
+    | IDENTIFIER expression_deriv
     {
         log_parser("identifier expression");
+    }
+    | expression_deriv
+    {
+        log_parser("no expression left");
+    }
+    ;
+
+expression_deriv:
+    OP_ADD expression
+    {
+        log_parser("add expression");
+    }
+    | OP_MUL expression
+    {
+        log_parser("mult expression");
+    }
+    | OP_DIV expression
+    {
+        log_parser("div expression");
+    }
+    | OP_INCR
+    {
+        log_parser("increment expression");
+    }
+    | OP_OR expression
+    {
+        log_parser("or expression");
+    }
+    | OP_AND expression
+    {
+        log_parser("and expression");
+    }
+    | OP_NOT expression
+    {
+        log_parser("not expression");
+    }
+    | OP_EQUAL expression
+    {
+        log_parser("equal expression");
+    }
+    | OP_RELATIVE expression
+    {
+        log_parser("relative expression");
     }
     | /* empty */
     {
         log_parser("no expression left");
     }
     ;
+
 
 %%
 
@@ -319,7 +356,7 @@ importClass *imported_classes = NULL;
 
 void yyerror (char const *message)
 {   
-    fprintf(stderr, "\n[-ERROR-]: %s at line %d, in FILE -> %s\n\n",message, line_number, current_compiling);
+    fprintf(stderr, "\n[-ERROR-]: %s at line %d, in FILE -> %s\n\n", message, line_number, current_compiling);
     exit(1);   
 }
 

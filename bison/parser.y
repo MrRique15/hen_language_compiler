@@ -388,6 +388,8 @@ void import_class(char *class_name, char *path_name){
         temp->next->next = NULL;
     }
 
+    free(complete_path);
+
     return;
 }
 
@@ -449,6 +451,7 @@ int main (int argc, char *argv[]){
         importClass *temp = imported_classes;
 
         while(temp != NULL){
+            importClass *next = temp->next;
             line_number = 1;
             input_file = fopen(temp->path, "r");
 
@@ -480,7 +483,9 @@ int main (int argc, char *argv[]){
             symtab_dump(yyout);
             fclose(yyout);
 
-            temp = temp->next;
+            free(temp->path);
+            free(temp);
+            temp = next;
         }
 
         free(imported_classes);

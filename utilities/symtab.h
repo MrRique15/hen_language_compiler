@@ -27,26 +27,34 @@ typedef struct Param{
 typedef struct RefList{ 
     int line_number;
     struct RefList *next;
-    int type;
 }RefList;
  
 // struct that represents a list node
 typedef struct list_t{
+    // name, size of name, scope and occurrences (lines)
     char st_name[MAXTOKENNAME];
     int st_size;
     int scope;
     RefList *lines;
+
     // to store value and sometimes more information
     int st_ival; double st_fval; char *st_sval;
+
     // type
     int st_type;
-    int inf_type; // for arrays (info type) and functions (return type)
+
+    // for arrays (info type) and functions (return type)
+    // and for functions (return type)
+    int inf_type; 
+
     // array stuff
     int *i_vals; double *f_vals; char **s_vals;
     int array_size;
+
     // function parameters
     Param *parameters;
     int num_of_pars;
+    
     // pointer to next item in the list
     struct list_t *next;
 }list_t;

@@ -10,8 +10,6 @@ fnc void main(){
     d = 4;
     d = a - (b);
 
-    ?@#.
-
     ClasseTeste ct = new ClasseTeste();
 
     ct.print();

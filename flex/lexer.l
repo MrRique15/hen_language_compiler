@@ -218,6 +218,7 @@ STR_L          \"{print}*\"
 {IDENTIFIER}     {
     log_token("IDENTIFIER", yytext);
     insert(yytext, strlen(yytext), UNDEF, line_number);
+    yylval.symtab_item = lookup(yytext);
     return IDENTIFIER;
 }
 {CLASS_NAME}     { 
@@ -238,18 +239,23 @@ STR_L          \"{print}*\"
 }
 {INT_CONST}      { 
     log_token("INT_CONST", yytext);
+    yylval.int_val = atoi(yytext);
     return INT_CONST; 
 }
 {FLT_CONST}      { 
     log_token("FLT_CONST", yytext);
+    yylval.double_val = atof(yytext);
     return FLT_CONST; 
 }
 {CHR_CONST}      { 
     log_token("CHR_CONST", yytext);
+    yylval.char_val = yytext[0];
     return CHR_CONST; 
 }
 {STR_L}          { 
     log_token("STR_L", yytext);
+    yylval.str_val = malloc(yyleng * sizeof(char));
+    strcpy(yylval.str_val, yytext);
     return STR_L; 
 }
 

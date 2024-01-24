@@ -3,10 +3,15 @@
 #include <string.h>
 #include "symtab.h"
 
+extern void semantical_hash_error(char *name, int line_number);
+
 FILE *output_hash_log; // file to log the operations of the hash table
 
 // init current scope
 int cur_scope = 0;
+
+// init declare variable
+int declare = 0;
 
 // logs the operations of the hash table
 void log_hash_table_first(char *name, int line_number){
@@ -61,32 +66,58 @@ void insert(char *name, int len, int type, int line_number){
         l = (list_t*) malloc(sizeof(list_t));
         strncpy(l->st_name, name, len);  
 
-        // add to hashtable
+        // set up entry
         l->st_type = type;
         l->scope = cur_scope;
         l->lines = (RefList*) malloc(sizeof(RefList));
         l->lines->line_number = line_number;
         l->lines->next = NULL;
+
+        // add to hash table
         l->next = hash_table[hashval];
-
         hash_table[hashval] = l; 
-
         log_hash_table_first(name, line_number);
     }else{
         // found in table, so just add line number to reference list
-        l->scope = cur_scope;
-        RefList *t = l->lines;
+        if(declare == 0){
+            // search for last reference
+            RefList *t = l->lines;
 
-        while (t->next != NULL){
-            t = t->next;
+            while (t->next != NULL){
+                t = t->next;
+            }
+
+            // add linenumber to reference list
+            t->next = (RefList*) malloc(sizeof(RefList));
+            t->next->line_number = line_number;
+            t->next->next = NULL;
+            log_hash_table_recurrency(name, line_number);
+        }else{
+            // new entry
+            if(l->scope == cur_scope){
+                // same scope - multiple declaration error!
+                // exit compilation and show error, same variable can't be declared two times in the same scope
+                semantical_hash_error(name, l->lines->line_number);
+                exit(1);
+            }else{
+                // other scope - create new entry
+                // set up new entry
+                l = (list_t*) malloc(sizeof(list_t));
+                strncpy(l->st_name, name, len); 
+
+                l->st_type = type;
+                l->scope = cur_scope;
+                l->lines = (RefList*) malloc(sizeof(RefList));
+                l->lines->line_number = line_number;
+                l->lines->next = NULL;
+
+                /* add to hashtable */
+                l->next = hash_table[hashval];
+                hash_table[hashval] = l; 
+                log_hash_table_first(name, line_number);
+            }
+
         }
-
-        // add linenumber to reference list
-        t->next = (RefList*) malloc(sizeof(RefList));
-        t->next->line_number = line_number;
-        t->next->next = NULL;
-
-        log_hash_table_recurrency(name, line_number);
     }
 }
  
@@ -118,9 +149,24 @@ list_t *lookup_scope(char *name, int scope){
  
 // decrement the scope by 1
 void hide_scope(){
-    if(cur_scope > 0){
-        cur_scope--;
-    } 
+    list_t *l;
+    int i;
+    fprintf(output_hash_log, "Hiding scope \'%d\':\n", cur_scope);
+
+    /* for all the lists */
+    for (i = 0; i < TABLESIZE; i++){
+        if(hash_table[i] != NULL){
+            l = hash_table[i];
+            /* Find the first item that is from another scope */
+            while(l != NULL && l->scope == cur_scope){
+                fprintf(output_hash_log, "Hiding %s..\n", l->st_name);
+                l = l->next;
+            }
+            /* Set the list equal to that item */
+            hash_table[i] = l;
+        }
+    }
+    cur_scope--;
 }
  
 // increment the scope by 1, going deeper

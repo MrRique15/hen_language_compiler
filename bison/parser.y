@@ -8,9 +8,10 @@
 	extern FILE *yyout;
 	extern int line_number;
 	extern int yylex();
-    extern void import_class(char *class_name, char *path_name);
-    extern void log_token(char *token_name, char *token_value);
     extern void log_parser(char *message);
+    extern void log_token(char *token_name, char *token_value);
+    extern void import_class(char *class_name, char *path_name);
+    extern void semantical_hash_error(char *variable, int previous_line);
 
     FILE *output_lexer_log;
     FILE *output_parser_log;
@@ -20,16 +21,38 @@
     extern char *current_compiling;
 %}
 
+/* YYSTYPE union */
+%union{
+    char char_val;
+	int int_val;
+	double double_val;
+	char* str_val;
+	list_t* symtab_item;
+}
+
 %define parse.error verbose
 
-/* token definition */
-%left KW_IF
-%right KW_ELSE
+%token<int_val> KW_CHAR KW_INT KW_FLOAT KW_IF KW_ELSE KW_DOUBLE KW_WHILE KW_FOR KW_CONTINUE KW_BREAK KW_FUNCTION KW_RETURN KW_CLASS KW_PUBLIC KW_PRIVATE KW_MAIN KW_NEW KW_PRINT KW_IMPORT KW_VOID
+%token<int_val> OP_ADD OP_MUL OP_DIV OP_INCR OP_OR OP_AND OP_NOT OP_EQUAL OP_RELATIVE
+%token<int_val> OPEN_PAREN CLOSE_PAREN OPEN_BRACK CLOSE_BRACK OPEN_BRACE CLOSE_BRACE FINISH_LINECODE SINGLE_DOT SINGLE_COMMA ASSIGN_VALUE REFER_VALUE
+%token <symtab_item> IDENTIFIER CLASS_NAME CLASS_IMPORTED
+%token <int_val> INT_CONST 
+%token <double_val> FLT_CONST 
+%token <char_val> CHR_CONST 
+%token <str_val> STR_L
 
-%token KW_CHAR KW_INT KW_FLOAT KW_DOUBLE KW_WHILE KW_FOR KW_CONTINUE KW_BREAK KW_FUNCTION KW_RETURN KW_CLASS KW_PUBLIC KW_PRIVATE KW_MAIN KW_NEW KW_PRINT KW_IMPORT KW_VOID
-%token OP_ADD OP_MUL OP_DIV OP_INCR OP_OR OP_AND OP_NOT OP_EQUAL OP_RELATIVE
-%token OPEN_PAREN CLOSE_PAREN OPEN_BRACK CLOSE_BRACK OPEN_BRACE CLOSE_BRACE FINISH_LINECODE SINGLE_DOT SINGLE_COMMA ASSIGN_VALUE REFER_VALUE
-%token IDENTIFIER INT_CONST FLT_CONST CHR_CONST STR_L CLASS_NAME CLASS_IMPORTED
+
+/* token definition */
+%left OPEN_PAREN CLOSE_PAREN OPEN_BRACK CLOSE_BRACK
+%right OP_NOT OP_INCR REFER_VALUE
+%left OP_MUL OP_DIV
+%left OP_ADD
+%left OP_RELATIVE
+%left OP_EQUAL
+%left OP_OR
+%left OP_AND
+%right ASSIGN_VALUE
+%left SINGLE_COMMA
 
 %start program
  
@@ -49,7 +72,7 @@ multiple_imports: single_import multiple_imports
     }
     ;
 
-main_function: KW_FUNCTION type KW_MAIN OPEN_PAREN params CLOSE_PAREN OPEN_BRACE function_body CLOSE_BRACE
+main_function: { incr_scope(); } KW_FUNCTION type KW_MAIN OPEN_PAREN params CLOSE_PAREN OPEN_BRACE function_body CLOSE_BRACE { hide_scope(); }
     {
         log_parser("main function found");
     }
@@ -83,7 +106,7 @@ class_variable: assignment_statement | class_function
     }
     ;
 
-class_function: access KW_FUNCTION type IDENTIFIER OPEN_PAREN params CLOSE_PAREN OPEN_BRACE function_body CLOSE_BRACE
+class_function: { incr_scope(); } access KW_FUNCTION type IDENTIFIER OPEN_PAREN params CLOSE_PAREN OPEN_BRACE function_body CLOSE_BRACE { hide_scope(); }
     {
         log_parser("class function found");
     }
@@ -117,11 +140,11 @@ type: KW_INT
     } 
     ;
 
-params: type IDENTIFIER params_deriv
+params: { declare = 1; } type IDENTIFIER params_deriv
     {
         log_parser("params found");
     }
-    | /* empty */
+    | { declare = 0; } /* empty */
     {
         log_parser("no params left");
     }
@@ -131,7 +154,7 @@ params_deriv: SINGLE_COMMA params
     {
         log_parser("multiple params found");
     }
-    | /* empty */
+    | { declare = 0; } /* empty */
     {
         log_parser("no params left");
     }
@@ -201,7 +224,7 @@ for_statement: KW_FOR OPEN_PAREN assignment_statement expression FINISH_LINECODE
     ;
 
 assignment_statement: 
-    access type IDENTIFIER assignment_statement_deriv
+    { declare = 1; } type IDENTIFIER assignment_statement_deriv
     {
         log_parser("variable declaration started case 1");
     }
@@ -216,7 +239,7 @@ assignment_statement:
     ;
 
 assignment_statement_deriv:
-    FINISH_LINECODE
+    { declare = 0; } FINISH_LINECODE
     {
         log_parser("variable declaration FINISHED case 1");
     }
@@ -231,7 +254,7 @@ assignment_statement_deriv:
     ;
 
 assign_assignment_deriv:
-    FINISH_LINECODE
+    { declare = 0; } FINISH_LINECODE
     {
         log_parser("variable declaration DERIVATED FINISHED case 1");
     }
@@ -362,6 +385,11 @@ importClass *imported_classes = NULL;
 void yyerror (char const *message){
     fprintf(stderr, "\n[-ERROR-]: %s at line %d, in FILE -> %s\n\n", message, line_number, current_compiling);
     exit(1);   
+}
+
+void semantical_hash_error(char *variable, int previous_line){
+    fprintf(stderr, "\n[-ERROR-]: semantical error, variable %s already declared at line %d, in FILE -> %s\n\n", variable, previous_line, current_compiling);
+    exit(1);
 }
 
 void import_class(char *class_name, char *path_name){

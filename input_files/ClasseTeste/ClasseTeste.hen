@@ -1,8 +1,6 @@
 clss ClasseTeste {
     int testId;
 
-    int testId = 10;
-
     pub fnc void print(){
         prnt("Teste");
     }

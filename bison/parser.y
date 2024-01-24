@@ -388,7 +388,7 @@ void yyerror (char const *message){
 }
 
 void semantical_hash_error(char *variable, int previous_line){
-    fprintf(stderr, "\n[-ERROR-]: semantical error, variable %s already declared at line %d, in FILE -> %s\n\n", variable, previous_line, current_compiling);
+    fprintf(stderr, "\n[-ERROR-]: semantical error, [ the variable %s was previous declared at line %d ] at line %d, in FILE -> %s\n\n", variable, previous_line, line_number, current_compiling);
     exit(1);
 }
 

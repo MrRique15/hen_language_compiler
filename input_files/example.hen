@@ -8,7 +8,9 @@ fnc void main(){
     int d, e = 1;
 
     d = 4;
-    d = a - b;
+    d = a - (b);
+
+    ?@#.
 
     ClasseTeste ct = new ClasseTeste();
 

@@ -295,6 +295,11 @@ expression:
     {
         log_parser("identifier expression");
     }
+    |
+    OPEN_PAREN expression CLOSE_PAREN expression_deriv
+    {
+        log_parser("parenthesis expression");
+    }
     | expression_deriv
     {
         log_parser("no expression left");
@@ -354,8 +359,7 @@ typedef struct importClass{
 
 importClass *imported_classes = NULL;
 
-void yyerror (char const *message)
-{   
+void yyerror (char const *message){
     fprintf(stderr, "\n[-ERROR-]: %s at line %d, in FILE -> %s\n\n", message, line_number, current_compiling);
     exit(1);   
 }
@@ -387,8 +391,6 @@ void import_class(char *class_name, char *path_name){
         temp->next->path = complete_path;
         temp->next->next = NULL;
     }
-
-    free(complete_path);
 
     return;
 }
@@ -485,10 +487,9 @@ int main (int argc, char *argv[]){
 
             free(temp->path);
             free(temp);
+
             temp = next;
         }
-
-        free(imported_classes);
     }	
     
     printf("Finished compilation of file --> %s\n", argv[1]);

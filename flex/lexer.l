@@ -257,7 +257,7 @@ STR_L          \"{print}*\"
 "\n"            { line_number += 1; }     /* increment line number, when found line break character */
 [ \t\r\f]+                                /* remove whitespace, consuming them */
  
-.               { 
+.               {
     fprintf(stderr,"\n[-ERROR-]: lexical error, unrecognized character '%c' at line %d, in FILE -> %s\n\n", yytext[0], line_number, current_compiling);
     exit(1);
 }

@@ -5,6 +5,7 @@
     #include <stdlib.h>
     #include <string.h>
     #include "utilities/symtab.h"
+    #include "semantic/semantics.h"
     #include "parser.tab.h"
     int line_number = 1;                              // initialize line counter to 1
     void log_comment(char *message, int break_line);
@@ -264,7 +265,7 @@ STR_L          \"{print}*\"
 [ \t\r\f]+                                /* remove whitespace, consuming them */
  
 .               {
-    fprintf(stderr,"\n[-ERROR-]: lexical error, unrecognized character '%c' at line %d, in FILE -> %s\n\n", yytext[0], line_number, current_compiling);
+    fprintf(stderr,"\n[-ERROR-]: lexical error, [ unrecognized character '%c' ] at line %d, in FILE -> %s\n\n", yytext[0], line_number, current_compiling);
     exit(1);
 }
 

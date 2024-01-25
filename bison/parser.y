@@ -1,17 +1,21 @@
 %{
 	#include "utilities/symtab.c"
+    #include "semantic/semantics.c"
 	#include <stdio.h>
 	#include <stdlib.h>
 	#include <string.h>
 
 	extern FILE *yyin;
 	extern FILE *yyout;
-	extern int line_number;
 	extern int yylex();
+	extern int line_number;
     extern void log_parser(char *message);
+    extern void parameters_amount_error(char *function_name);
     extern void log_token(char *token_name, char *token_value);
     extern void import_class(char *class_name, char *path_name);
+    extern void type_error(int type_1, int type_2, int op_type);
     extern void semantical_hash_error(char *variable, int previous_line);
+    extern void function_declared_error(char *function_name, int previous_line);
 
     FILE *output_lexer_log;
     FILE *output_parser_log;
@@ -374,16 +378,11 @@ expression_deriv:
 
 
 %%
-
-typedef struct importClass{
-    char *path;
-    struct importClass *next;
-} importClass;
-
-importClass *imported_classes = NULL;
-
+// -------------------------------------------------------------------------------
+// -- ERROR FUNCTIONS - FRONT-END 
+// -------------------------------------------------------------------------------
 void yyerror (char const *message){
-    fprintf(stderr, "\n[-ERROR-]: %s at line %d, in FILE -> %s\n\n", message, line_number, current_compiling);
+    fprintf(stderr, "\n[-ERROR-]: [ %s ] at line %d, in FILE -> %s\n\n", message, line_number, current_compiling);
     exit(1);   
 }
 
@@ -391,6 +390,31 @@ void semantical_hash_error(char *variable, int previous_line){
     fprintf(stderr, "\n[-ERROR-]: semantical error, [ the variable %s was previous declared at line %d ] at line %d, in FILE -> %s\n\n", variable, previous_line, line_number, current_compiling);
     exit(1);
 }
+
+void type_error(int type_1, int type_2, int op_type){ 
+	fprintf(stderr, "\n[-ERROR-]: semantical error, [ Type conflict between %d and %d using op type %d ] at line %d, in FILE -> %s\n\n", type_1, type_2, op_type, line_number, current_compiling);
+	exit(1);
+}
+
+void function_declared_error(char *function_name, int previous_line){
+    fprintf(stderr, "\n[-ERROR-]: semantical error, [ the function %s was previous declared at line %d ] at line %d, in FILE -> %s\n\n", function_name, previous_line, line_number, current_compiling);
+    exit(1);
+}
+
+void parameters_amount_error(char *function_name){
+    fprintf(stderr, "\n[-ERROR-]: semantical error, [ the function %s was called with a wrong amount of parameters ] at line %d, in FILE -> %s\n\n", function_name, line_number, current_compiling);
+    exit(1);
+}
+
+// -------------------------------------------------------------------------------
+// -- CLASS IMPORTING FUNCTIONS
+// -------------------------------------------------------------------------------
+typedef struct importClass{
+    char *path;
+    struct importClass *next;
+} importClass;
+
+importClass *imported_classes = NULL;
 
 void import_class(char *class_name, char *path_name){
     char *path = "input_files/";
@@ -423,6 +447,9 @@ void import_class(char *class_name, char *path_name){
     return;
 }
 
+// -------------------------------------------------------------------------------
+// -- LOGGER FUNCTIONS
+// -------------------------------------------------------------------------------
 void log_token(char *token_name, char *token_value){
     fprintf(output_lexer_log, "TOKEN: %-15s \tVALUE: %-40s \tLINE: %d\n", token_name, token_value, line_number);
 }
@@ -436,6 +463,9 @@ void prepare_log_files(char *compiled_file_name){
     fprintf(output_parser_log, "\n--------------------\nGENERATING LOG PARSER FOR FILE --> [%s]\n--------------------\n", compiled_file_name);
 }
 
+// -------------------------------------------------------------------------------
+// -- BISON MAIN FUNCTION
+// -------------------------------------------------------------------------------
 int main (int argc, char *argv[]){
 
     if(argc < 2){
@@ -477,6 +507,11 @@ int main (int argc, char *argv[]){
 	symtab_dump(yyout);
 	fclose(yyout);
 
+    // revisit queue dump
+    yyout = fopen("output_files/revisit_dump.out", "w");
+    revisit_dump(yyout);
+    fclose(yyout);
+
     if(imported_classes != NULL){
         importClass *temp = imported_classes;
 
@@ -513,6 +548,11 @@ int main (int argc, char *argv[]){
             symtab_dump(yyout);
             fclose(yyout);
 
+            // revisit queue dump
+            yyout = fopen("output_files/revisit_dump.out", "w");
+            revisit_dump(yyout);
+            fclose(yyout);
+
             free(temp->path);
             free(temp);
 
@@ -531,3 +571,4 @@ int main (int argc, char *argv[]){
 
 	return flag;
 }
+// -------------------------------------------------------------------------------

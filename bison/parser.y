@@ -39,11 +39,11 @@
 %token<int_val> KW_CHAR KW_INT KW_FLOAT KW_IF KW_ELSE KW_DOUBLE KW_WHILE KW_FOR KW_CONTINUE KW_BREAK KW_FUNCTION KW_RETURN KW_CLASS KW_PUBLIC KW_PRIVATE KW_MAIN KW_NEW KW_PRINT KW_IMPORT KW_VOID
 %token<int_val> OP_ADD OP_MUL OP_DIV OP_INCR OP_OR OP_AND OP_NOT OP_EQUAL OP_RELATIVE
 %token<int_val> OPEN_PAREN CLOSE_PAREN OPEN_BRACK CLOSE_BRACK OPEN_BRACE CLOSE_BRACE FINISH_LINECODE SINGLE_DOT SINGLE_COMMA ASSIGN_VALUE REFER_VALUE
-%token <symtab_item> IDENTIFIER CLASS_NAME CLASS_IMPORTED
-%token <int_val> INT_CONST 
-%token <double_val> FLT_CONST 
-%token <char_val> CHR_CONST 
-%token <str_val> STR_L
+%token<symtab_item> IDENTIFIER CLASS_NAME CLASS_IMPORTED
+%token<int_val> INT_CONST 
+%token<double_val> FLT_CONST 
+%token<char_val> CHR_CONST 
+%token<str_val> STR_L
 
 
 /* token definition */
@@ -486,8 +486,9 @@ int main (int argc, char *argv[]){
 	// initialize symbol table
     FILE *clear_hashLog = fopen("output_files/output_hash_log.out", "w");
     fclose(clear_hashLog);
-    
 	init_hash_table();
+    // initialize revisit queue
+	queue = NULL;
     
     printf("\n\nStarted  compilation of file --> %s\n", argv[1]);
     prepare_log_files(argv[1]);
@@ -502,6 +503,10 @@ int main (int argc, char *argv[]){
     fclose(output_lexer_log);
     fclose(output_parser_log);
 
+    if(queue != NULL){
+		printf("Warning: Something has not been checked in the revisit queue!\n");
+	}
+    
     // symbol table dump
 	yyout = fopen("output_files/symtab_dump.out", "w");
 	symtab_dump(yyout);
@@ -532,7 +537,10 @@ int main (int argc, char *argv[]){
 
             prepare_log_files(temp->path);
             
+            // initialize symbol table
             init_hash_table();
+            // initialize revisit queue
+	        queue = NULL;
 
             yyin = input_file;
             flag = yyparse();
@@ -542,6 +550,10 @@ int main (int argc, char *argv[]){
             fclose(output_parser_log);
 
             printf("Finished compilation of file --> %s\n", temp->path);
+
+            if(queue != NULL){
+		        printf("Warning: Something has not been checked in the revisit queue!\n");
+	        }
 
             // symbol table dump
             yyout = fopen("output_files/symtab_dump.out", "a");

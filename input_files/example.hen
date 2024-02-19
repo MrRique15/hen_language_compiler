@@ -1,4 +1,4 @@
-import "ClasseTeste/ClasseTeste.hen";
+import "ClasseTeste/ClasseTeste.hen"; //import class
 
 int globZ;
 
@@ -6,16 +6,20 @@ fnc void main(){
     int a = 1, b = 2;
     int c = 0;
     int d, e = 1;
+    flt f = 1.0;
 
     d = 4;
     d = a - (b);
 
-    ClasseTeste ct = new ClasseTeste();
+    ClasseTeste ct = new ClasseTeste(); //new classObject declaration
 
-    ct.print();
+    ct.print(); //classObject method call
 
-    if(a > b){
-        rtn(a);
+    prnt("teste"); //print function
+    scn("%d", &a); //scan function
+
+    if(a > b){ //if statement
+        rtn(a); //return statement
     }els if(a < b){
         rtn(b);
     }

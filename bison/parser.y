@@ -10,6 +10,9 @@
 	extern int yylex();
 	extern int line_number;
     extern void log_parser(char *message);
+    void checkAvailableClass(char *class_name);
+    extern void set_current_class(char *class_name);
+    extern void unimported_class_error(char *class_name);
     extern void parameters_amount_error(char *function_name);
     extern void log_token(char *token_name, char *token_value);
     extern void import_class(char *class_name, char *path_name);
@@ -19,6 +22,8 @@
 
     FILE *output_lexer_log;
     FILE *output_parser_log;
+
+    char *current_class;
 
 	void yyerror(char const *message);
 
@@ -36,7 +41,7 @@
 
 %define parse.error verbose
 
-%token<int_val> KW_CHAR KW_INT KW_FLOAT KW_IF KW_ELSE KW_DOUBLE KW_WHILE KW_FOR KW_CONTINUE KW_BREAK KW_FUNCTION KW_RETURN KW_CLASS KW_PUBLIC KW_PRIVATE KW_MAIN KW_NEW KW_PRINT KW_IMPORT KW_VOID
+%token<int_val> KW_CHAR KW_INT KW_FLOAT KW_IF KW_ELSE KW_DOUBLE KW_WHILE KW_FOR KW_CONTINUE KW_BREAK KW_FUNCTION KW_RETURN KW_CLASS KW_PUBLIC KW_PRIVATE KW_MAIN KW_NEW KW_PRINT KW_SCAN KW_IMPORT KW_VOID
 %token<int_val> OP_ADD OP_MUL OP_DIV OP_INCR OP_OR OP_AND OP_NOT OP_EQUAL OP_RELATIVE
 %token<int_val> OPEN_PAREN CLOSE_PAREN OPEN_BRACK CLOSE_BRACK OPEN_BRACE CLOSE_BRACE FINISH_LINECODE SINGLE_DOT SINGLE_COMMA ASSIGN_VALUE REFER_VALUE
 %token<symtab_item> IDENTIFIER CLASS_NAME CLASS_IMPORTED
@@ -180,6 +185,7 @@ statement: if_statement
     | assignment_statement 
     | return_statement 
     | print_statement 
+    | scan_statement
     | function_call 
     | KW_CONTINUE FINISH_LINECODE 
     | KW_BREAK FINISH_LINECODE 
@@ -236,7 +242,13 @@ assignment_statement:
     {
         log_parser("variable declaration started case 2");
     }
-    | CLASS_NAME IDENTIFIER ASSIGN_VALUE KW_NEW CLASS_NAME OPEN_PAREN params CLOSE_PAREN FINISH_LINECODE
+    | CLASS_NAME {
+        if(yylval.symtab_item->st_name != NULL){
+            checkAvailableClass(yylval.symtab_item->st_name);
+        }else{
+            unimported_class_error(current_class);
+        }
+    } IDENTIFIER ASSIGN_VALUE KW_NEW CLASS_NAME OPEN_PAREN params CLOSE_PAREN FINISH_LINECODE
     {
         log_parser("variable declaration started case 3");
     }
@@ -268,7 +280,6 @@ assign_assignment_deriv:
     }
     ;
 
-
 access: KW_PRIVATE
     {
         log_parser("private definition");
@@ -292,6 +303,12 @@ return_statement: KW_RETURN OPEN_PAREN expression CLOSE_PAREN FINISH_LINECODE
 print_statement: KW_PRINT OPEN_PAREN expression CLOSE_PAREN FINISH_LINECODE
     {
         log_parser("print statement achieved");
+    }
+    ;
+
+scan_statement: KW_SCAN OPEN_PAREN STR_L SINGLE_COMMA REFER_VALUE IDENTIFIER CLOSE_PAREN FINISH_LINECODE
+    {
+        log_parser("scan statement achieved");
     }
     ;
 
@@ -426,6 +443,11 @@ void parameters_amount_error(char *function_name){
     exit(1);
 }
 
+void unimported_class_error(char *class_name){
+    fprintf(stderr, "\n[-ERROR-]: semantical error, [ the class %s was used without being imported ] at line %d, in FILE -> %s\n\n", class_name, line_number, current_compiling);
+    exit(1);
+}
+
 // -------------------------------------------------------------------------------
 // -- CLASS IMPORTING FUNCTIONS
 // -------------------------------------------------------------------------------
@@ -434,7 +456,13 @@ typedef struct importClass{
     struct importClass *next;
 } importClass;
 
+typedef struct importedClassList{
+    char *class_name;
+    struct importedClassList *next;
+} importedClassList;
+
 importClass *imported_classes = NULL;
+importedClassList *available_classes = NULL;
 
 void import_class(char *class_name, char *path_name){
     char *path = "input_files/";
@@ -464,7 +492,41 @@ void import_class(char *class_name, char *path_name){
         temp->next->next = NULL;
     }
 
+    if(available_classes == NULL){
+        available_classes = malloc(sizeof(importedClassList));
+        available_classes->class_name = class_name;
+        available_classes->next = NULL;
+    }else{
+        importedClassList *temp = available_classes;
+
+        while(temp->next != NULL){
+            temp = temp->next;
+        }
+
+        temp->next = malloc(sizeof(importedClassList));
+        temp->next->class_name = class_name;
+        temp->next->next = NULL;
+    }
+
     return;
+}
+
+void checkAvailableClass(char *class_name){
+    importedClassList *temp = available_classes;
+
+    while(temp != NULL){
+        if(strcmp(temp->class_name, class_name) == 0){
+            return;
+        }
+
+        temp = temp->next;
+    }
+
+    unimported_class_error(class_name);
+}
+
+void set_current_class(char *class_name){
+    current_class = class_name;
 }
 
 // -------------------------------------------------------------------------------
@@ -588,8 +650,12 @@ int main (int argc, char *argv[]){
 
             temp = next;
         }
-    }	
-    
+    }
+
+    if(available_classes != NULL){
+        free(available_classes);
+    }
+
     if(main_prog_queue != NULL){
         
 		printf("\n\tWarning: Something has not been checked in the revisit queue!\n");

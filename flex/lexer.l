@@ -12,6 +12,7 @@
     void yyerror();
     void import_class(char *class_name, char *class_path);
     void log_token(char *token_name, char *token_value);
+    void set_current_class(char *class_name);
 
     FILE *output_file;
 
@@ -113,6 +114,10 @@ STR_L          \"{print}*\"
 "prnt"          {
     log_token("KW_PRINT", yytext);
     return KW_PRINT; 
+}
+"scn"          {
+    log_token("KW_SCAN", yytext);
+    return KW_SCAN; 
 }
 "pvt"           {
     log_token("KW_PRIVATE", yytext);
@@ -224,7 +229,9 @@ STR_L          \"{print}*\"
 }
 {CLASS_NAME}     { 
     log_token("CLASS_NAME", yytext);
-    return CLASS_NAME; 
+    yylval.symtab_item = lookup(yytext);
+    set_current_class(yytext);
+    return CLASS_NAME;
 }
 {CLASS_IMPORTED} {
     log_token("CLASS_IMPORTED", yytext);
@@ -234,14 +241,15 @@ STR_L          \"{print}*\"
 
     char *class_name = strtok(yytext, "/");
     char *class_path = strtok(NULL, "/");
-    
+    insert(class_name, strlen(class_name), CLASS_TYPE, line_number);
+
     import_class(class_name, class_path);
     return CLASS_IMPORTED;
 }
 {INT_CONST}      { 
     log_token("INT_CONST", yytext);
     yylval.int_val = atoi(yytext);
-    return INT_CONST; 
+    return INT_CONST;
 }
 {FLT_CONST}      { 
     log_token("FLT_CONST", yytext);

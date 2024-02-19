@@ -295,9 +295,29 @@ print_statement: KW_PRINT OPEN_PAREN expression CLOSE_PAREN FINISH_LINECODE
     }
     ;
 
-function_call: IDENTIFIER SINGLE_DOT IDENTIFIER OPEN_PAREN params CLOSE_PAREN FINISH_LINECODE
+function_call: IDENTIFIER SINGLE_DOT IDENTIFIER OPEN_PAREN function_call_params CLOSE_PAREN FINISH_LINECODE
     {
         log_parser("class function call achieved");
+    }
+    ;
+
+function_call_params: IDENTIFIER function_call_params_deriv
+    {
+        log_parser("function call params achieved");
+    }
+    | /* empty */
+    {
+        log_parser("no function call params");
+    }
+    ;
+
+function_call_params_deriv: SINGLE_COMMA function_call_params
+    {
+        log_parser("function call params achieved");
+    }
+    | /* empty */
+    {
+        log_parser("no function call params");
     }
     ;
 
@@ -425,7 +445,7 @@ void import_class(char *class_name, char *path_name){
     strcat(complete_path, "/");
     strcat(complete_path, path_name);
 
-    printf("----------\nFound a Class into the code given\nNAME: %-10s \tPATH: %s\n----------\n", class_name, complete_path);
+    printf("\n\t----------\n\tFound a Class into the code given\n\tNAME: %-10s \tPATH: %s\n\t----------", class_name, complete_path);
 
     // add here the functions to import the class and start its parsing
     if(imported_classes == NULL){
@@ -503,9 +523,7 @@ int main (int argc, char *argv[]){
     fclose(output_lexer_log);
     fclose(output_parser_log);
 
-    if(queue != NULL){
-		printf("Warning: Something has not been checked in the revisit queue!\n");
-	}
+    revisit_queue *main_prog_queue = queue;
     
     // symbol table dump
 	yyout = fopen("output_files/symtab_dump.out", "w");
@@ -530,7 +548,7 @@ int main (int argc, char *argv[]){
                 return EXIT_FAILURE;
             }
             
-            printf("Started  compilation of file --> %s\n", temp->path);
+            printf("\n\n\tStarted  compilation of file --> %s\n", temp->path);
             current_compiling = temp->path;
             output_lexer_log = fopen("output_files/output_lexic_log.out", "a");
             output_parser_log = fopen("output_files/output_parser_log.out", "a");
@@ -549,11 +567,11 @@ int main (int argc, char *argv[]){
             fclose(output_lexer_log);
             fclose(output_parser_log);
 
-            printf("Finished compilation of file --> %s\n", temp->path);
-
             if(queue != NULL){
-		        printf("Warning: Something has not been checked in the revisit queue!\n");
+		        printf("\t\tWarning: Something has not been checked in the revisit queue!\n");
 	        }
+
+            printf("\tFinished compilation of file --> %s\n", temp->path);
 
             // symbol table dump
             yyout = fopen("output_files/symtab_dump.out", "a");
@@ -572,8 +590,13 @@ int main (int argc, char *argv[]){
         }
     }	
     
-    printf("Finished compilation of file --> %s\n", argv[1]);
-    printf("\n\nAll logs generated in output_files folder\n");
+    if(main_prog_queue != NULL){
+        
+		printf("\n\tWarning: Something has not been checked in the revisit queue!\n");
+	}
+
+    printf("\nFinished compilation of file --> %s\n", argv[1]);
+    printf("\n\n---------------------------------------------\n# All logs generated in output_files folder #\n---------------------------------------------\n");
     
     if(flag == 0){
         printf("Compilation completed successful\n");

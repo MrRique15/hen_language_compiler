@@ -115,8 +115,9 @@ class_variable: assignment_statement | class_function
     }
     ;
 
-class_function: { incr_scope(); } access KW_FUNCTION type IDENTIFIER OPEN_PAREN params CLOSE_PAREN OPEN_BRACE function_body CLOSE_BRACE { hide_scope(); }
+class_function: { incr_scope(); } access KW_FUNCTION type IDENTIFIER OPEN_PAREN params CLOSE_PAREN OPEN_BRACE function_body CLOSE_BRACE 
     {
+        hide_scope(); 
         log_parser("class function found");
     }
     ;

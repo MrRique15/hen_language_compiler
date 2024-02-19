@@ -3,10 +3,10 @@ import "ClasseTeste/ClasseTeste.hen"; //import class
 int globZ;
 
 fnc void main(){
-    int a = 1, b = 2;
     int c = 0;
-    int d, e = 1;
     flt f = 1.0;
+    int d, e = 1;
+    int a = 1, b = 2;
 
     d = 4;
     d = a - (b);

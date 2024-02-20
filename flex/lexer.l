@@ -127,6 +127,10 @@ STR_L          \"{print}*\"
     log_token("KW_PUBLIC", yytext);
     return KW_PUBLIC; 
 }
+"this"         {
+    log_token("KW_THIS", yytext);
+    return KW_THIS; 
+}
 "main"          {
     log_token("KW_MAIN", yytext);
     return KW_MAIN; 

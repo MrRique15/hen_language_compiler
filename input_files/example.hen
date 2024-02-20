@@ -1,5 +1,5 @@
 import "ClasseTeste/ClasseTeste.hen"; //import class
-
+import "Pessoa/Pessoa.hen"; //import class
 int globZ;
 
 fnc void main(){

@@ -1,0 +1,13 @@
+clss Pessoa {
+    chr name;
+    int age;
+    int id;
+
+    pub fnc void getName() {
+        rtn(name);
+    }
+
+    pub fnc void setName(chr name) {
+        this.name = name;
+    }
+}

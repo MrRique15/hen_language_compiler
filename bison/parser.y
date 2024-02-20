@@ -41,7 +41,7 @@
 
 %define parse.error verbose
 
-%token<int_val> KW_CHAR KW_INT KW_FLOAT KW_IF KW_ELSE KW_DOUBLE KW_WHILE KW_FOR KW_CONTINUE KW_BREAK KW_FUNCTION KW_RETURN KW_CLASS KW_PUBLIC KW_PRIVATE KW_MAIN KW_NEW KW_PRINT KW_SCAN KW_IMPORT KW_VOID
+%token<int_val> KW_CHAR KW_INT KW_FLOAT KW_IF KW_ELSE KW_DOUBLE KW_WHILE KW_FOR KW_CONTINUE KW_BREAK KW_FUNCTION KW_RETURN KW_CLASS KW_PUBLIC KW_PRIVATE KW_THIS KW_MAIN KW_NEW KW_PRINT KW_SCAN KW_IMPORT KW_VOID
 %token<int_val> OP_ADD OP_MUL OP_DIV OP_INCR OP_OR OP_AND OP_NOT OP_EQUAL OP_RELATIVE
 %token<int_val> OPEN_PAREN CLOSE_PAREN OPEN_BRACK CLOSE_BRACK OPEN_BRACE CLOSE_BRACE FINISH_LINECODE SINGLE_DOT SINGLE_COMMA ASSIGN_VALUE REFER_VALUE
 %token<symtab_item> IDENTIFIER CLASS_NAME CLASS_IMPORTED
@@ -252,6 +252,10 @@ assignment_statement:
     } IDENTIFIER ASSIGN_VALUE KW_NEW CLASS_NAME OPEN_PAREN params CLOSE_PAREN FINISH_LINECODE
     {
         log_parser("variable declaration started case 3");
+    }
+    | KW_THIS SINGLE_DOT IDENTIFIER ASSIGN_VALUE expression FINISH_LINECODE
+    {
+        log_parser("variable declaration started case 4");
     }
     ;
 
@@ -631,7 +635,7 @@ int main (int argc, char *argv[]){
             fclose(output_parser_log);
 
             if(queue != NULL){
-		        printf("\t\tWarning: Something has not been checked in the revisit queue!\n");
+		        printf("\t\t[INTERNAL WARNING]: Something has not been checked in the revisit queue!\n");
 	        }
 
             printf("\tFinished compilation of file --> %s\n", temp->path);
@@ -659,7 +663,7 @@ int main (int argc, char *argv[]){
 
     if(main_prog_queue != NULL){
         
-		printf("\n\tWarning: Something has not been checked in the revisit queue!\n");
+		printf("\n\t[INTERNAL WARNING]: Something has not been checked in the revisit queue!\n");
 	}
 
     printf("\nFinished compilation of file --> %s\n", argv[1]);

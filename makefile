@@ -26,7 +26,7 @@ INPUT_FOLDER_SEMANTIC_ERROR = input_files/semantic_error_code
 ## ############### CHANGE THESE VARIABLES IF NECESSARY ########################
 ## ############################################################################
 ### INPUT CASE (1 - SUCCESS, 2 - LEXIC ERROR, 3 - SINTATIC ERROR, 4 - SEMANTIC ERROR) ###
-INPUT_CASE = 4
+INPUT_CASE = 1
 
 ### OUTPUT FOLDER FOR LOGS (DON'T CHANGE) ###
 OUTPUT_FOLDER = output_files

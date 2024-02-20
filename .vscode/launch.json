@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "c:/Users/Admin/Desktop/UEM/Compiladores/hen_language_compiler",
-      "program": "c:/Users/Admin/Desktop/UEM/Compiladores/hen_language_compiler/build/Debug/outDebug",
+      "cwd": "c:/Users/Admin/Desktop/UEM/Compiladores/hen_language_compiler/utilities",
+      "program": "c:/Users/Admin/Desktop/UEM/Compiladores/hen_language_compiler/utilities/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

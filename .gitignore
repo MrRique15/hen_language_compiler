@@ -3,5 +3,6 @@ parser.tab.h
 parser.tab.c
 lex.yy.c
 */*.out
+*/*.json
 lexer
 parser.output

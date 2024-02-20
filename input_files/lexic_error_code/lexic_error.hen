@@ -1,0 +1,9 @@
+int test;
+
+fnc void main(){
+    int varTeste = 0;
+
+    for(int i;;){
+        @
+    }
+}

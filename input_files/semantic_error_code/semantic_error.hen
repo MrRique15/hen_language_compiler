@@ -1,0 +1,28 @@
+import "ClasseTeste/ClasseTeste.hen"; //import class
+int globZ;
+
+fnc void main(){
+    int c = 0;
+    flt f = 1.0;
+    int d, e = 1;
+    int a = 1, b = 2;
+
+    d = 4;
+    d = a - (b);
+
+    ClasseTeste ct = new ClasseTeste(); //new classObject declaration
+    Pessoa person = new Pessoa(); //new classObject declaration
+    
+    ct.print(); //classObject method call
+
+    prnt("teste"); //print function
+    scn("%d", &a); //scan function
+
+    if(a > b){ //if statement
+        rtn(a); //return statement
+    }els if(a < b){
+        rtn(b);
+    }
+
+    rtn(a+b);
+}

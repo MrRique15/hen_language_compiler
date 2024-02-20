@@ -24,7 +24,7 @@
     FILE *output_parser_log;
 
     char *current_class;
-
+    char *root_compiling_path;
 	void yyerror(char const *message);
 
     extern char *current_compiling;
@@ -189,7 +189,7 @@ statement: if_statement
     | scan_statement
     | function_call 
     | KW_CONTINUE FINISH_LINECODE 
-    | KW_BREAK FINISH_LINECODE 
+    | KW_BREAK FINISH_LINECODE
     ;
 
 if_statement: KW_IF OPEN_PAREN expression CLOSE_PAREN OPEN_BRACE function_body CLOSE_BRACE if_deriv
@@ -424,32 +424,32 @@ expression_deriv:
 // -- ERROR FUNCTIONS - FRONT-END 
 // -------------------------------------------------------------------------------
 void yyerror (char const *message){
-    fprintf(stderr, "\n[-ERROR-]: [ %s ] at line %d, in FILE -> %s\n\n", message, line_number, current_compiling);
+    fprintf(stderr, "\n\033[0;31m[-ERROR-]: [ %s ] at line %d\033[0;33m, in FILE -> %s\n\n\033[0m", message, line_number, current_compiling);
     exit(1);   
 }
 
 void semantical_hash_error(char *variable, int previous_line){
-    fprintf(stderr, "\n[-ERROR-]: semantical error, [ the variable %s was previous declared at line %d ] at line %d, in FILE -> %s\n\n", variable, previous_line, line_number, current_compiling);
+    fprintf(stderr, "\n\033[0;31m[-ERROR-]: [ semantical error, the variable %s was previous declared at line %d ] at line %d\033[0;33m, in FILE -> %s\n\n\033[0m", variable, previous_line, line_number, current_compiling);
     exit(1);
 }
 
 void type_error(int type_1, int type_2, int op_type){ 
-	fprintf(stderr, "\n[-ERROR-]: semantical error, [ Type conflict between %d and %d using op type %d ] at line %d, in FILE -> %s\n\n", type_1, type_2, op_type, line_number, current_compiling);
+	fprintf(stderr, "\n\033[0;31m[-ERROR-]: [ semantical error, Type conflict between %d and %d using op type %d ] at line %d\033[0;33m, in FILE -> %s\n\n\033[0m", type_1, type_2, op_type, line_number, current_compiling);
 	exit(1);
 }
 
 void function_declared_error(char *function_name, int previous_line){
-    fprintf(stderr, "\n[-ERROR-]: semantical error, [ the function %s was previous declared at line %d ] at line %d, in FILE -> %s\n\n", function_name, previous_line, line_number, current_compiling);
+    fprintf(stderr, "\n\033[0;31m[-ERROR-]: [ semantical error, the function %s was previous declared at line %d ] at line %d\033[0;33m, in FILE -> %s\n\n\033[0m", function_name, previous_line, line_number, current_compiling);
     exit(1);
 }
 
 void parameters_amount_error(char *function_name){
-    fprintf(stderr, "\n[-ERROR-]: semantical error, [ the function %s was called with a wrong amount of parameters ] at line %d, in FILE -> %s\n\n", function_name, line_number, current_compiling);
+    fprintf(stderr, "\n\033[0;31m[-ERROR-]: [ semantical error, the function %s was called with a wrong amount of parameters ] at line %d\033[0;33m, in FILE -> %s\n\n\033[0m", function_name, line_number, current_compiling);
     exit(1);
 }
 
 void unimported_class_error(char *class_name){
-    fprintf(stderr, "\n[-ERROR-]: semantical error, [ the class %s was used without being imported ] at line %d, in FILE -> %s\n\n", class_name, line_number, current_compiling);
+    fprintf(stderr, "\n\033[0;31m[-ERROR-]: [ semantical error, the class %s was used without being imported ] at line %d\033[0;33m, in FILE -> %s\n\n\033[0m", class_name, line_number, current_compiling);
     exit(1);
 }
 
@@ -470,8 +470,8 @@ importClass *imported_classes = NULL;
 importedClassList *available_classes = NULL;
 
 void import_class(char *class_name, char *path_name){
-    char *path = "input_files/";
-    char *complete_path = malloc(strlen(path) + strlen(class_name) + strlen(path_name) + 1);
+    char *path = root_compiling_path;
+    char *complete_path = malloc(strlen(path) + strlen(class_name) + strlen(path_name) + 2);
 
     strcpy(complete_path, path);
     strcat(complete_path, class_name);
@@ -563,9 +563,16 @@ int main (int argc, char *argv[]){
     FILE *input_file = fopen(argv[1], "r");
 
     if (!input_file) {
-        fprintf(stderr, "Error while trying to open file %s to compile\n", argv[1]);
+        fprintf(stderr, "\033[0;31mError while trying to open file %s to compile\n\033[0m", argv[1]);
         return EXIT_FAILURE;
     }
+
+    // get the root path, without the file name to class import further
+    root_compiling_path = malloc(strlen(argv[1]) + 1);
+    strcpy(root_compiling_path, argv[1]);
+    char *last_slash = strrchr(root_compiling_path, '/');
+    *last_slash = '\0';
+    strcat(root_compiling_path, "/");
 
     output_lexer_log = fopen("output_files/output_lexic_log.out", "w");
     output_parser_log = fopen("output_files/output_parser_log.out", "w");
@@ -611,7 +618,7 @@ int main (int argc, char *argv[]){
             input_file = fopen(temp->path, "r");
 
             if (!input_file) {
-                fprintf(stderr, "\n[-ERROR-]: error while trying to open file %s to compile, make sure the class exists when importing it!\n\n", temp->path);
+                fprintf(stderr, "\n\033[0;31m[-ERROR-]: error while trying to open file %s to compile, make sure the class exists when importing it!\n\n\033[0m", temp->path);
                 return EXIT_FAILURE;
             }
             
@@ -635,7 +642,9 @@ int main (int argc, char *argv[]){
             fclose(output_parser_log);
 
             if(queue != NULL){
+                printf("\033[0;33m");
 		        printf("\t\t[INTERNAL WARNING]: Something has not been checked in the revisit queue!\n");
+                printf("\033[0m");
 	        }
 
             printf("\tFinished compilation of file --> %s\n", temp->path);
@@ -662,19 +671,26 @@ int main (int argc, char *argv[]){
     }
 
     if(main_prog_queue != NULL){
-        
+        printf("\033[0;33m");
 		printf("\n\t[INTERNAL WARNING]: Something has not been checked in the revisit queue!\n");
+        printf("\033[0m");
 	}
 
     printf("\nFinished compilation of file --> %s\n", argv[1]);
     printf("\n\n---------------------------------------------\n# All logs generated in output_files folder #\n---------------------------------------------\n");
     
     if(flag == 0){
-        printf("Compilation completed successful\n");
+        printf("\033[0;32m");
+        printf("\n[SUCESS] - Compilation completed successful\n\n");
+        printf("\033[0m");
     }else{
-        printf("Compilation failed\n");
+        printf("\033[0;31m");
+        printf("\n[CRITICAL] - Compilation failed\n\n");
+        printf("\033[0m");
     }
 
+    free(root_compiling_path);
+    
 	return flag;
 }
 // -------------------------------------------------------------------------------

@@ -1,0 +1,12 @@
+int test;
+
+fnc void main(){
+    int varTeste = 0;
+
+    for(int i;;){
+        if(i == 10){
+            brk;
+        }
+        i = i+1.
+    }
+}

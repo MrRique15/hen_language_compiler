@@ -1,0 +1,15 @@
+clss ClasseTeste {
+    int testId;
+
+    pub fnc void print(){
+        prnt("Teste");
+    }
+
+    pub fnc int getTestId(){
+        rtn(testId);
+    }
+    
+    pub fnc void setTestId(int id){
+        testId = id;
+    }
+}

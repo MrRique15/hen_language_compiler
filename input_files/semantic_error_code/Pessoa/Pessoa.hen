@@ -8,6 +8,6 @@ clss Pessoa {
     }
 
     pub fnc void setName(chr name) {
-        this.name = name;
+        this.name = (name);
     }
 }

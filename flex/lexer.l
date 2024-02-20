@@ -277,7 +277,7 @@ STR_L          \"{print}*\"
 [ \t\r\f]+                                /* remove whitespace, consuming them */
  
 .               {
-    fprintf(stderr,"\n[-ERROR-]: lexical error, [ unrecognized character '%c' ] at line %d, in FILE -> %s\n\n", yytext[0], line_number, current_compiling);
+    fprintf(stderr,"\n\033[0;31m[-ERROR-]: [ lexical error, unrecognized character '%c' ] at line %d\033[0;33m, in FILE -> %s\n\n\033[0m", yytext[0], line_number, current_compiling);
     exit(1);
 }
 
